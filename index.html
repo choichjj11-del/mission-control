@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mission Control — Sunsama Style</title>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;500;600;700&family=Karla:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f3ef; --surface: #ffffff; --border: #e6e2db; --border2: #d6d0c8;
+  --text: #2c2825; --text2: #7a7570; --text3: #b0a99f;
+  --warm: #c4956a; --warm-bg: #c4956a12; --warm2: #a67a50;
+  --sage: #6b9080; --sage-bg: #6b908015;
+  --rose: #c27878; --rose-bg: #c2787815;
+  --slate: #7889a0; --slate-bg: #7889a015;
+  --lavender: #9381a4; --lavender-bg: #9381a415;
+  --done-bg: #6b908018; --radius: 10px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Karla',sans-serif;font-size:14px}
+
+/* ===== APP SHELL ===== */
+.app{display:flex;height:100vh;overflow:hidden}
+.left{width:420px;min-width:360px;max-width:480px;display:flex;flex-direction:column;border-right:1px solid var(--border);background:var(--surface);overflow:hidden}
+.right{flex:1;overflow-y:auto;padding:24px 28px}
+
+/* ===== LEFT HEADER ===== */
+.l-header{padding:20px 20px 0;flex-shrink:0}
+.greeting{font-size:11px;color:var(--text3)}
+.l-title{font-family:'Crimson Pro',serif;font-size:24px;font-weight:600;margin-top:2px}
+.l-sub{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* VIEW SWITCHER */
+.view-switch{display:flex;gap:0;margin:14px 20px 0;border:1px solid var(--border);border-radius:8px;overflow:hidden;flex-shrink:0}
+.v-btn{flex:1;padding:7px 0;text-align:center;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;color:var(--text2);background:var(--surface)}
+.v-btn:hover{background:var(--warm-bg)}
+.v-btn.active{background:var(--warm);color:#fff}
+.v-btn+.v-btn{border-left:1px solid var(--border)}
+
+/* DAY TABS */
+.day-strip{display:flex;gap:4px;padding:12px 20px;border-bottom:1px solid var(--border);overflow-x:auto;flex-shrink:0}
+.d-tab{padding:5px 12px;border-radius:16px;font-size:10px;cursor:pointer;color:var(--text2);white-space:nowrap;font-weight:600;transition:all .15s}
+.d-tab:hover{background:var(--warm-bg);color:var(--warm)}
+.d-tab.active{background:var(--warm);color:#fff}
+.d-tab.today{box-shadow:inset 0 0 0 1.5px var(--warm)}
+
+/* TASK LIST */
+.task-scroll{flex:1;overflow-y:auto;padding-bottom:80px}
+.t-section{padding:14px 20px 6px}
+.t-section-head{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.t-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.t-section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text3)}
+.t-section-count{font-size:10px;color:var(--text3);margin-left:auto}
+
+.t-item{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border-radius:8px;margin-bottom:3px;transition:all .15s;cursor:pointer}
+.t-item:hover{background:var(--warm-bg)}
+.t-item.done{opacity:.35}
+
+.t-chk{width:17px;height:17px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;margin-top:2px;transition:all .15s;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.t-chk:hover{border-color:var(--warm)}
+.t-chk.done{background:var(--sage);border-color:var(--sage)}
+.t-chk.done::after{content:'✓';color:#fff;font-size:9px;font-weight:700}
+
+.t-body{flex:1;min-width:0}
+.t-name{font-size:13px;font-weight:500;line-height:1.45}
+.t-item.done .t-name{text-decoration:line-through;color:var(--text3)}
+.t-desc{font-size:10px;color:var(--text3);margin-top:1px}
+.t-tags{display:flex;gap:4px;margin-top:4px;flex-wrap:wrap}
+.t-tag{font-size:8px;padding:1px 7px;border-radius:8px;font-weight:700;letter-spacing:.3px}
+.tag-content{background:var(--rose-bg);color:var(--rose)}
+.tag-auto{background:var(--slate-bg);color:var(--slate)}
+.tag-growth{background:var(--lavender-bg);color:var(--lavender)}
+.tag-infra{background:var(--sage-bg);color:var(--sage)}
+.tag-high{background:#c2787820;color:var(--rose);font-weight:700}
+
+.t-dur{font-size:10px;color:var(--text3);background:var(--bg);padding:2px 7px;border-radius:8px;flex-shrink:0;margin-top:2px;font-weight:500}
+
+/* ADD TASK */
+.add-row{padding:8px 20px}
+.add-btn{display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:8px;color:var(--text3);cursor:pointer;font-size:12px;transition:all .15s}
+.add-btn:hover{background:var(--warm-bg);color:var(--warm)}
+
+/* ===== RIGHT PANEL ===== */
+.r-title{font-family:'Crimson Pro',serif;font-size:20px;font-weight:600;margin-bottom:16px}
+.r-subtitle{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text3);margin-bottom:10px;margin-top:24px}
+
+/* INSIGHTS ROW */
+.insights{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+.ins-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px}
+.ins-label{font-size:10px;color:var(--text3);font-weight:600;margin-bottom:4px}
+.ins-val{font-family:'Crimson Pro',serif;font-size:24px;font-weight:700}
+.ins-sub{font-size:9px;color:var(--text3);margin-top:2px}
+
+/* OBJECTIVES */
+.obj{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px}
+.obj-head{display:flex;align-items:center;justify-content:space-between}
+.obj-title{font-family:'Crimson Pro',serif;font-size:15px;font-weight:600}
+.obj-pct{font-size:11px;font-weight:700;color:var(--warm)}
+.obj-desc{font-size:11px;color:var(--text2);margin-top:4px;line-height:1.6}
+.obj-bar{height:4px;background:var(--bg);border-radius:2px;margin-top:8px;overflow:hidden}
+.obj-fill{height:100%;border-radius:2px;transition:width .6s}
+
+/* WEEKLY KANBAN */
+.wk-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:20px}
+.wk-day{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px;min-height:90px}
+.wk-day.today{border-color:var(--warm);box-shadow:0 0 0 1px var(--warm)}
+.wk-label{font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;margin-bottom:6px}
+.wk-label span{display:block;font-size:16px;font-weight:700;color:var(--text);margin-top:1px;font-family:'Crimson Pro',serif}
+.wk-task{font-size:9px;padding:2px 5px;border-radius:4px;margin-bottom:2px;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* MONTHLY CALENDAR HEATMAP */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:20px}
+.cal-header{font-size:9px;font-weight:700;color:var(--text3);text-align:center;padding:4px 0}
+.cal-cell{aspect-ratio:1;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:default;position:relative;transition:all .15s}
+.cal-cell.empty{background:transparent}
+.cal-cell.future{background:var(--surface);color:var(--text3);border:1px solid var(--border)}
+.cal-cell.past-0{background:#f0ece6;color:var(--text2)}
+.cal-cell.past-1{background:#e8ddd0;color:var(--text)}
+.cal-cell.past-2{background:#d4c4a8;color:var(--text)}
+.cal-cell.past-3{background:var(--warm);color:#fff;font-weight:700}
+.cal-cell.today-cell{box-shadow:inset 0 0 0 2px var(--warm);font-weight:700}
+.cal-cell .cal-dot{position:absolute;bottom:3px;width:4px;height:4px;border-radius:50%;background:var(--sage)}
+
+/* VPS */
+.vps-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.vps-item{display:flex;align-items:center;gap:6px;font-size:12px;padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px}
+.vps-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.vps-name{font-weight:500}
+.vps-status{margin-left:auto;font-size:10px;color:var(--text3)}
+
+/* COMPETITION SUMMARY */
+.comp-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;font-size:12px;line-height:1.7;color:var(--text2)}
+.comp-highlight{color:var(--warm);font-weight:700}
+.comp-bad{color:var(--rose);font-weight:600}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+/* MOBILE */
+@media(max-width:768px){
+  .app{flex-direction:column}
+  .left{width:100%;max-width:100%;height:55vh;min-width:auto;border-right:none;border-bottom:1px solid var(--border)}
+  .right{padding:16px}
+  .insights{grid-template-columns:1fr 1fr}
+  .wk-grid{grid-template-columns:repeat(7,1fr);gap:3px}
+  .vps-grid{grid-template-columns:1fr}
+}
+
+/* ANIM */
+@keyframes si{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:translateX(0)}}
+.t-item{animation:si .2s ease both}
+.t-item:nth-child(2){animation-delay:.02s}
+.t-item:nth-child(3){animation-delay:.04s}
+.t-item:nth-child(4){animation-delay:.06s}
+.t-item:nth-child(5){animation-delay:.08s}
+.t-item:nth-child(6){animation-delay:.1s}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ===== LEFT PANEL ===== -->
+<div class="left">
+  <div class="l-header">
+    <div class="greeting">Good evening, Brian</div>
+    <div class="l-title">Mission Control</div>
+    <div class="l-sub" id="leftSub">38 tasks · 2 done</div>
+  </div>
+
+  <div class="view-switch">
+    <div class="v-btn active" onclick="switchView('daily',this)">Daily</div>
+    <div class="v-btn" onclick="switchView('weekly',this)">Weekly</div>
+    <div class="v-btn" onclick="switchView('monthly',this)">Monthly</div>
+    <div class="v-btn" onclick="switchView('all',this)">All</div>
+  </div>
+
+  <div class="day-strip" id="dayStrip"></div>
+
+  <div class="task-scroll" id="taskScroll"></div>
+
+  <div class="add-row"><div class="add-btn">+ 태스크 추가</div></div>
+</div>
+
+<!-- ===== RIGHT PANEL ===== -->
+<div class="right">
+  <div class="r-title" id="rightTitle">Weekly Overview</div>
+
+  <!-- INSIGHTS -->
+  <div class="insights" id="insightsRow">
+    <div class="ins-card"><div class="ins-label">진행률</div><div class="ins-val" id="insPct" style="color:var(--warm)">5%</div><div class="ins-sub" id="insDone">2/38 완료</div></div>
+    <div class="ins-card"><div class="ins-label">즉시 실행</div><div class="ins-val" style="color:var(--rose)">9</div><div class="ins-sub">이번 주 마감</div></div>
+    <div class="ins-card"><div class="ins-label">오늘 예상</div><div class="ins-val" style="color:var(--sage)">1.5h</div><div class="ins-sub">저녁 작업 기준</div></div>
+    <div class="ins-card"><div class="ins-label">경쟁 순위</div><div class="ins-val" style="color:var(--rose)">11위</div><div class="ins-sub">12채널 중</div></div>
+  </div>
+
+  <!-- OBJECTIVES -->
+  <div class="r-subtitle">🎯 목표</div>
+  <div id="objectivesArea">
+    <div class="obj">
+      <div class="obj-head"><div class="obj-title">💰 월 수익 1,000만원</div><div class="obj-pct">시작 전</div></div>
+      <div class="obj-desc">아내와 매일 저녁 1~2시간 · 쿠팡파트너스 + 글로벌 어필리에이트</div>
+    </div>
+    <div class="obj">
+      <div class="obj-head"><div class="obj-title">📈 평균 재생 15,000+</div><div class="obj-pct">0%</div></div>
+      <div class="obj-desc">트렌딩뮤직(52→90%) · 포스팅(2.6→1/일) · 영상길이(19.6→25초)</div>
+      <div class="obj-bar"><div class="obj-fill" style="width:0%;background:var(--warm)"></div></div>
+    </div>
+    <div class="obj">
+      <div class="obj-head"><div class="obj-title">🌏 다국어 파일럿</div><div class="obj-pct">0%</div></div>
+      <div class="obj-desc">영어/일본어 10개 영상 · ElevenLabs TTS · 추가 비용 0</div>
+      <div class="obj-bar"><div class="obj-fill" style="width:0%;background:var(--sage)"></div></div>
+    </div>
+  </div>
+
+  <!-- WEEKLY KANBAN -->
+  <div class="r-subtitle">📅 이번 주 분배</div>
+  <div class="wk-grid" id="weekGrid"></div>
+
+  <!-- MONTHLY CALENDAR -->
+  <div class="r-subtitle">📆 2월 — 완료 히트맵</div>
+  <div class="cal-grid" id="calGrid"></div>
+
+  <!-- COMPETITION -->
+  <div class="r-subtitle">📊 경쟁 분석</div>
+  <div class="comp-card">
+    13채널 700릴스 분석 · Top 3: interior__home_(71), tem.duck(70), hehe_home_tem(70)<br>
+    갓템홈: <span class="comp-bad">28점 (11위/12)</span><br>
+    <span class="comp-highlight">같은 아이템인데 갓템홈만 3~8% 성과 → 콘텐츠 도달력이 원인</span>
+  </div>
+
+  <!-- VPS -->
+  <div class="r-subtitle">🖥️ VPS 상태</div>
+  <div class="vps-grid">
+    <div class="vps-item"><div class="vps-dot" style="background:var(--sage)"></div><div class="vps-name">n8n</div><div class="vps-status">:5678</div></div>
+    <div class="vps-item"><div class="vps-dot" style="background:var(--sage)"></div><div class="vps-name">postgres</div><div class="vps-status">:5432</div></div>
+    <div class="vps-item"><div class="vps-dot" style="background:var(--sage)"></div><div class="vps-name">daily-manager</div><div class="vps-status">polling</div></div>
+    <div class="vps-item"><div class="vps-dot" style="background:var(--warm)"></div><div class="vps-name">inpock-selenium</div><div class="vps-status">대기</div></div>
+  </div>
+</div>
+</div>
+
+<script>
+// ===== DATA =====
+const TASKS = [
+  // 즉시 — 갓템홈
+  {id:1,name:"트렌딩 뮤직 90%+ 적용",desc:"현재 52% → 에디츠 앱",cat:"content",pri:"즉시",sub:"갓템홈 개선",done:false,dur:"15m",day:1},
+  {id:2,name:"포스팅 빈도 2.6/일 → 1~1.5/일",desc:"인스타 1개, 나머지 분산",cat:"content",pri:"즉시",sub:"갓템홈 개선",done:false,dur:"—",day:1},
+  {id:3,name:"영상 길이 19.6초 → 24~26초",desc:"Top3: 25.6초",cat:"content",pri:"즉시",sub:"갓템홈 개선",done:false,dur:"—",day:2},
+  {id:4,name:"hehe_home_tem 벤치마킹",desc:"1/2/1/2 패턴, 썸네일 스타일",cat:"content",pri:"즉시",sub:"갓템홈 개선",done:false,dur:"30m",day:2},
+  {id:5,name:"뷰티 카테고리 테스트",desc:"경쟁 24.3만회, 갓템홈 0개",cat:"growth",pri:"즉시",sub:"갓템홈 개선",done:false,dur:"45m",day:3,highlight:true},
+  {id:6,name:"캡션 hook 강화",desc:"\"연예인이 극찬한\" 패턴",cat:"content",pri:"즉시",sub:"갓템홈 개선",done:false,dur:"20m",day:3},
+  // 즉시 — ManyChat
+  {id:7,name:"ManyChat \"Any post\" + n8n 구축",desc:"포스트별 링크 매핑",cat:"auto",pri:"즉시",sub:"ManyChat",done:false,dur:"2h",day:4},
+  {id:8,name:"포스트ID ↔ 인포크 매핑 설계",cat:"auto",pri:"즉시",sub:"ManyChat",done:false,dur:"1h",day:4},
+  {id:9,name:"ManyChat Pro 결제 + FB 연결",cat:"infra",pri:"즉시",sub:"ManyChat",done:false,dur:"30m",day:5},
+  // 단기 — 다국어
+  {id:10,name:"기존 영상 다국어 자막/음성",desc:"이미 만들어진 영상 활용",cat:"content",pri:"단기",sub:"다국어 확장",done:false,dur:"2h",day:8},
+  {id:11,name:"테스트 언어 우선순위 선정",desc:"영어/일본어/베트남어",cat:"growth",pri:"단기",sub:"다국어 확장",done:false,dur:"30m",day:8},
+  {id:12,name:"다국어 파이프라인 설계",desc:"ElevenLabs TTS → 자막",cat:"auto",pri:"단기",sub:"다국어 확장",done:false,dur:"3h",day:9},
+  {id:13,name:"언어별 계정 생성",desc:"godtem.home.en / .jp / .vn",cat:"infra",pri:"단기",sub:"다국어 확장",done:false,dur:"1h",day:10},
+  {id:14,name:"파일럿 10개 영상",desc:"2주 테스트",cat:"growth",pri:"단기",sub:"다국어 확장",done:false,dur:"4h",day:11},
+  // 단기 — 멀티채널
+  {id:15,name:"채널 카테고리 다양화 검토",cat:"growth",pri:"단기",sub:"멀티채널",done:false,day:12},
+  {id:16,name:"세컨 계정 전략 수립",cat:"growth",pri:"단기",sub:"멀티채널",done:false,day:12},
+  {id:17,name:"플랫폼 분산 전략",desc:"인스타+틱톡+네이버+FB",cat:"content",pri:"단기",sub:"멀티채널",done:false,day:13},
+  {id:18,name:"플랫폼별 어필리에이트 연결",cat:"growth",pri:"단기",sub:"멀티채널",done:false,day:14},
+  {id:19,name:"해외 아마존/월마트 연결",cat:"growth",pri:"단기",sub:"멀티채널",done:false,day:14},
+  // 단기 — 인프라
+  {id:20,name:"인포크 셀레니움 Docker 배포",cat:"infra",pri:"단기",sub:"인프라",done:true},
+  {id:21,name:"데일리 매니저 봇 검증",cat:"infra",pri:"단기",sub:"인프라",done:true},
+  {id:22,name:"n8n 프롬프트 자동 최적화",cat:"auto",pri:"단기",sub:"인프라",done:false,day:6},
+  {id:23,name:"네이버 클립 밀린 것 업로드",cat:"content",pri:"단기",sub:"인프라",done:false,day:6},
+  {id:24,name:"인포크 수동 업로드 (밀린 것)",cat:"content",pri:"단기",sub:"인프라",done:false,day:7},
+  // 중기
+  {id:25,name:"2주 테스트 후 재측정",desc:"평균재생 15K+",cat:"growth",pri:"중기",sub:"",done:false,high:true},
+  {id:26,name:"다국어 파일럿 결과 분석",desc:"ROI 판단",cat:"growth",pri:"중기",sub:"",done:false,high:true},
+  {id:27,name:"1% Growth 롱폼 콘텐츠",cat:"content",pri:"중기",sub:"",done:false},
+  {id:28,name:"디지털 상품 제작",desc:"포모도로/캘린더/노션",cat:"growth",pri:"중기",sub:"",done:false},
+  {id:29,name:"어필리에이트 퍼널 구축",desc:"리드마그넷 → 쿠팡 → 컨설팅",cat:"growth",pri:"중기",sub:"",done:false},
+  {id:30,name:"동기부여 알람 앱 MVP",cat:"infra",pri:"중기",sub:"",done:false},
+  {id:31,name:"UGC 인플루언서 육성",cat:"growth",pri:"중기",sub:"",done:false},
+  {id:32,name:"OpenClaw 에이전트 고도화",cat:"auto",pri:"중기",sub:"",done:false},
+  // 장기
+  {id:33,name:"AI UGC 영상 자동화",cat:"auto",pri:"장기",sub:"",done:false},
+  {id:34,name:"여성의류 페이스스왑 자동화",cat:"auto",pri:"장기",sub:"",done:false},
+  {id:35,name:"AI 아바타 대량 생성",cat:"auto",pri:"장기",sub:"",done:false},
+  {id:36,name:"네이버 블로그 자동 포스팅",cat:"auto",pri:"장기",sub:"",done:false},
+  {id:37,name:"네이버 클립 셀레니움 자동화",cat:"auto",pri:"장기",sub:"",done:false},
+  {id:38,name:"다국어 풀스케일 확장",cat:"growth",pri:"장기",sub:"",done:false},
+];
+
+const CAT_STYLES={content:'tag-content',auto:'tag-auto',growth:'tag-growth',infra:'tag-infra'};
+const CAT_LABELS={content:'Content',auto:'Automation',growth:'Growth',infra:'Infra'};
+const PRI_COLORS={즉시:'var(--rose)',단기:'var(--warm)',중기:'var(--slate)',장기:'var(--text3)'};
+const PRI_LABELS={즉시:'🔴 즉시 실행',단기:'🟡 단기',중기:'🟢 중기',장기:'🔵 장기'};
+
+let currentView='daily';
+let currentDay=3; // Wed (0=Mon)
+const TODAY=19;
+const MONTH_DAYS=28;
+
+// ===== RENDER =====
+function init(){
+  renderDayStrip();
+  renderTasks();
+  renderWeekGrid();
+  renderCalendar();
+  updateInsights();
+}
+
+function switchView(v,el){
+  currentView=v;
+  document.querySelectorAll('.v-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderTasks();
+}
+
+function renderDayStrip(){
+  const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const startDate=17; // Feb 17 = Mon
+  let html='';
+  for(let i=0;i<14;i++){
+    const d=startDate+i;
+    const dayIdx=i%7;
+    const isToday=d===TODAY;
+    const isCur=i===currentDay;
+    const weekNum=i<7?'이번주':'다음주';
+    html+=`<div class="d-tab ${isCur?'active':''} ${isToday?'today':''}" onclick="selectDay(${i},this)">${days[dayIdx]} ${d>28?d-28:d}</div>`;
+  }
+  html+=`<div class="d-tab" onclick="selectDay(-1,this)">Backlog</div>`;
+  document.getElementById('dayStrip').innerHTML=html;
+}
+
+function selectDay(i,el){
+  currentDay=i;
+  document.querySelectorAll('.d-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderTasks();
+}
+
+function renderTasks(){
+  const container=document.getElementById('taskScroll');
+  let filtered;
+  
+  if(currentView==='daily'){
+    filtered=TASKS.filter(t=>t.day===currentDay+1||t.done);
+    if(currentDay===-1) filtered=TASKS.filter(t=>!t.day&&!t.done);
+  } else if(currentView==='weekly'){
+    const weekStart=currentDay<7?1:8;
+    const weekEnd=weekStart+6;
+    filtered=TASKS.filter(t=>(t.day>=weekStart&&t.day<=weekEnd)||t.done);
+  } else if(currentView==='monthly'){
+    filtered=TASKS.filter(t=>t.pri==='즉시'||t.pri==='단기'||t.done);
+  } else {
+    filtered=TASKS;
+  }
+
+  // Group by section
+  const groups={};
+  filtered.forEach(t=>{
+    const key=t.done?'✅ 완료':(t.sub?`${PRI_LABELS[t.pri]} — ${t.sub}`:PRI_LABELS[t.pri]);
+    if(!groups[key])groups[key]={items:[],pri:t.pri,done:t.done};
+    groups[key].items.push(t);
+  });
+
+  // Sort: done last
+  const sorted=Object.entries(groups).sort((a,b)=>{
+    if(a[1].done&&!b[1].done) return 1;
+    if(!a[1].done&&b[1].done) return -1;
+    return 0;
+  });
+
+  let html='';
+  for(const [key,g] of sorted){
+    const doneCount=g.items.filter(t=>t.done).length;
+    const color=g.done?'var(--sage)':PRI_COLORS[g.pri]||'var(--text3)';
+    html+=`<div class="t-section">
+      <div class="t-section-head">
+        <div class="t-dot" style="background:${color}"></div>
+        <div class="t-section-title">${key}</div>
+        <div class="t-section-count">${doneCount}/${g.items.length}</div>
+      </div>
+      ${g.items.map(t=>renderTaskItem(t)).join('')}
+    </div>`;
+  }
+  
+  if(!html) html='<div style="padding:40px 20px;text-align:center;color:var(--text3);font-size:13px">이 날에 배정된 태스크가 없습니다</div>';
+  container.innerHTML=html;
+
+  // Re-bind clicks
+  container.querySelectorAll('.t-chk').forEach(c=>{
+    c.addEventListener('click',e=>{
+      e.stopPropagation();
+      const id=+c.dataset.id;
+      const task=TASKS.find(t=>t.id===id);
+      if(task){task.done=!task.done; renderTasks(); updateInsights(); renderCalendar();}
+    });
+  });
+}
+
+function renderTaskItem(t){
+  return `<div class="t-item ${t.done?'done':''}">
+    <div class="t-chk ${t.done?'done':''}" data-id="${t.id}"></div>
+    <div class="t-body">
+      <div class="t-name">${t.name}</div>
+      ${t.desc?`<div class="t-desc">${t.desc}</div>`:''}
+      <div class="t-tags">
+        <span class="t-tag ${CAT_STYLES[t.cat]}">${CAT_LABELS[t.cat]}</span>
+        ${t.high||t.highlight?'<span class="t-tag tag-high">높음</span>':''}
+      </div>
+    </div>
+    ${t.dur?`<div class="t-dur">${t.dur}</div>`:''}
+  </div>`;
+}
+
+function updateInsights(){
+  const done=TASKS.filter(t=>t.done).length;
+  const total=TASKS.length;
+  const pct=Math.round(done/total*100);
+  document.getElementById('insPct').textContent=pct+'%';
+  document.getElementById('insDone').textContent=`${done}/${total} 완료`;
+  document.getElementById('leftSub').textContent=`${total} tasks · ${done} done`;
+}
+
+// ===== WEEK GRID =====
+function renderWeekGrid(){
+  const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const startDate=17;
+  let html='';
+  for(let i=0;i<7;i++){
+    const d=startDate+i;
+    const isToday=d===TODAY;
+    const dayTasks=TASKS.filter(t=>t.day===i+1&&!t.done);
+    html+=`<div class="wk-day ${isToday?'today':''}">
+      <div class="wk-label">${days[i]}<span>${d}</span></div>
+      ${dayTasks.slice(0,3).map(t=>{
+        const bg=t.cat==='content'?'var(--rose-bg)':t.cat==='auto'?'var(--slate-bg)':t.cat==='growth'?'var(--lavender-bg)':'var(--sage-bg)';
+        const fg=t.cat==='content'?'var(--rose)':t.cat==='auto'?'var(--slate)':t.cat==='growth'?'var(--lavender)':'var(--sage)';
+        return `<div class="wk-task" style="background:${bg};color:${fg}">${t.name.substring(0,12)}${t.name.length>12?'…':''}</div>`;
+      }).join('')}
+      ${dayTasks.length>3?`<div style="font-size:8px;color:var(--text3)">+${dayTasks.length-3} more</div>`:''}
+    </div>`;
+  }
+  document.getElementById('weekGrid').innerHTML=html;
+}
+
+// ===== MONTHLY CALENDAR =====
+function renderCalendar(){
+  const headers=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  let html=headers.map(h=>`<div class="cal-header">${h}</div>`).join('');
+  
+  // Feb 2026 starts on Sunday → offset 6 (Mon-based)
+  const offset=6; // Feb 1 = Sun = index 6 in Mon-start week
+  for(let i=0;i<offset;i++) html+=`<div class="cal-cell empty"></div>`;
+  
+  const doneCounts={};
+  TASKS.forEach(t=>{
+    if(t.done){
+      // Simulate: done tasks completed on day 18
+      const d=18;
+      doneCounts[d]=(doneCounts[d]||0)+1;
+    }
+  });
+  
+  for(let d=1;d<=MONTH_DAYS;d++){
+    const isToday=d===TODAY;
+    const isPast=d<TODAY;
+    const count=doneCounts[d]||0;
+    let cls='future';
+    if(isPast){
+      if(count>=3) cls='past-3';
+      else if(count>=2) cls='past-2';
+      else if(count>=1) cls='past-1';
+      else cls='past-0';
+    }
+    if(isToday) cls+=' today-cell';
+    const dot=count>0?'<div class="cal-dot"></div>':'';
+    html+=`<div class="cal-cell ${cls}">${d}${dot}</div>`;
+  }
+  document.getElementById('calGrid').innerHTML=html;
+}
+
+init();
+</script>
+</body>
+</html>
