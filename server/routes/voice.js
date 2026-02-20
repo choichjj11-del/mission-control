@@ -4,7 +4,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { readData, writeData, getNextTaskId, compressedTaskList } = require('../lib/dataStore');
-const { transcribeAudio, classifyVoiceInput } = require('../lib/ai');
+const { transcribeAudio, classifyVoiceInput, parseVoiceTodos } = require('../lib/ai');
 
 // Multer setup: save audio to /tmp
 const upload = multer({
@@ -80,6 +80,34 @@ router.post('/text', async (req, res) => {
     });
   } catch (err) {
     console.error('Text processing error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/voice/todo
+// Flow: Audio → Whisper STT → Claude → To-Do list items
+router.post('/todo', upload.single('audio'), async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No audio file uploaded' });
+  }
+
+  try {
+    // Step 1: Whisper STT
+    const transcript = await transcribeAudio(req.file.path);
+
+    // Step 2: Claude parses to-do items
+    const todos = await parseVoiceTodos(transcript);
+
+    // Cleanup uploaded file
+    fs.unlink(req.file.path, () => {});
+
+    res.json({
+      transcript,
+      todos: Array.isArray(todos) ? todos : [],
+    });
+  } catch (err) {
+    if (req.file) fs.unlink(req.file.path, () => {});
+    console.error('Voice todo processing error:', err);
     res.status(500).json({ error: err.message });
   }
 });

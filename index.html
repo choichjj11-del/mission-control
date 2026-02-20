@@ -26,9 +26,13 @@ body{background:var(--bg);color:var(--text);font-family:'Karla',sans-serif;font-
 
 /* ===== LEFT HEADER ===== */
 .l-header{padding:20px 20px 0;flex-shrink:0}
+.l-header-row{display:flex;align-items:center;justify-content:space-between}
 .greeting{font-size:11px;color:var(--text3)}
 .l-title{font-family:'Crimson Pro',serif;font-size:24px;font-weight:600;margin-top:2px}
 .l-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.header-voice-btn{width:34px;height:34px;border-radius:50%;border:2px solid var(--border);background:var(--surface);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:15px;color:var(--text3);flex-shrink:0}
+.header-voice-btn:hover{border-color:var(--warm);color:var(--warm);transform:scale(1.05)}
+.header-voice-btn.recording{border-color:var(--rose);background:var(--rose-bg);color:var(--rose);animation:pulse 1.2s infinite}
 
 /* VIEW SWITCHER */
 .view-switch{display:flex;gap:0;margin:14px 20px 0;border:1px solid var(--border);border-radius:8px;overflow:hidden;flex-shrink:0}
@@ -217,6 +221,32 @@ body{background:var(--bg);color:var(--text);font-family:'Karla',sans-serif;font-
 .toast.info{background:var(--slate)}
 @keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
+/* ===== TODAY'S TO-DO (Voice) ===== */
+.todo-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:10px}
+.todo-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.todo-title{font-family:'Crimson Pro',serif;font-size:15px;font-weight:600;display:flex;align-items:center;gap:6px}
+.todo-count{font-size:10px;color:var(--text3);background:var(--bg);padding:2px 8px;border-radius:10px;font-weight:600}
+.todo-empty{text-align:center;padding:16px;color:var(--text3);font-size:12px;line-height:1.6}
+.todo-list{display:flex;flex-direction:column;gap:4px}
+.todo-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;border:1px solid var(--border);cursor:pointer;transition:all .15s;animation:si .2s ease both}
+.todo-item:hover{background:var(--warm-bg);border-color:var(--warm);transform:translateX(2px)}
+.todo-item .todo-bullet{width:8px;height:8px;border-radius:50%;background:var(--warm);flex-shrink:0}
+.todo-item .todo-text{flex:1;font-size:13px;font-weight:500;color:var(--text);line-height:1.4}
+.todo-item .todo-arrow{font-size:11px;color:var(--text3);transition:color .15s}
+.todo-item:hover .todo-arrow{color:var(--warm)}
+.todo-item.completing{background:var(--done-bg);border-color:var(--sage);opacity:0;transform:translateX(20px);transition:all .4s ease}
+
+/* CONFIRM MODAL */
+.confirm-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:1100}
+.confirm-overlay.show{display:flex}
+.confirm-box{background:var(--surface);border-radius:14px;padding:28px 32px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.15);max-width:340px;width:90vw;animation:confirmPop .25s ease}
+@keyframes confirmPop{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
+.confirm-icon{font-size:36px;margin-bottom:12px}
+.confirm-task-name{font-family:'Crimson Pro',serif;font-size:17px;font-weight:600;color:var(--text);margin-bottom:6px;line-height:1.4}
+.confirm-msg{font-size:13px;color:var(--text2);margin-bottom:20px}
+.confirm-btns{display:flex;gap:8px;justify-content:center}
+.confirm-btns .btn{min-width:80px}
+
 /* SCROLLBAR */
 ::-webkit-scrollbar{width:5px}
 ::-webkit-scrollbar-track{background:transparent}
@@ -249,9 +279,14 @@ body{background:var(--bg);color:var(--text);font-family:'Karla',sans-serif;font-
 <!-- ===== LEFT PANEL ===== -->
 <div class="left">
   <div class="l-header">
-    <div class="greeting">Good evening, Brian</div>
-    <div class="l-title">Mission Control</div>
-    <div class="l-sub" id="leftSub">38 tasks &middot; 2 done</div>
+    <div class="l-header-row">
+      <div>
+        <div class="greeting">Good evening, Brian</div>
+        <div class="l-title">Mission Control</div>
+        <div class="l-sub" id="leftSub">38 tasks &middot; 2 done</div>
+      </div>
+      <button class="header-voice-btn" id="headerVoiceBtn" onclick="startTodoVoice()" title="음성으로 할 일 등록">🎙</button>
+    </div>
   </div>
 
   <div class="view-switch">
@@ -311,6 +346,20 @@ body{background:var(--bg);color:var(--text);font-family:'Karla',sans-serif;font-
       <div class="obj-head"><div class="obj-title">&#127758; &#45796;&#44397;&#50612; &#54028;&#51068;&#47103;</div><div class="obj-pct">0%</div></div>
       <div class="obj-desc">&#50689;&#50612;/&#51068;&#48376;&#50612; 10&#44060; &#50689;&#49345; &middot; ElevenLabs TTS &middot; &#52628;&#44032; &#48708;&#50857; 0</div>
       <div class="obj-bar"><div class="obj-fill" style="width:0%;background:var(--sage)"></div></div>
+    </div>
+  </div>
+
+  <!-- TODAY'S TO-DO (Voice) -->
+  <div class="r-subtitle">&#9989; 오늘의 To-Do</div>
+  <div class="todo-section" id="todoSection">
+    <div class="todo-header">
+      <div class="todo-title">음성으로 등록한 할 일</div>
+      <div class="todo-count" id="todoCount">0개</div>
+    </div>
+    <div id="todoList" class="todo-list">
+      <div class="todo-empty">
+        왼쪽 상단 🎙 버튼을 눌러<br>오늘 할 일을 말해보세요
+      </div>
     </div>
   </div>
 
@@ -422,8 +471,21 @@ body{background:var(--bg);color:var(--text);font-family:'Karla',sans-serif;font-
     <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
   </div>
   <div class="voice-timer" id="voiceTimer">0:00</div>
-  <button class="voice-stop" onclick="stopVoice()">&#51204;&#49569;</button>
-  <button class="voice-cancel" onclick="cancelVoice()">&#52712;&#49548;</button>
+  <button class="voice-stop" onclick="stopActiveVoice()">&#51204;&#49569;</button>
+  <button class="voice-cancel" onclick="cancelActiveVoice()">&#52712;&#49548;</button>
+</div>
+
+<!-- CONFIRM MODAL (To-Do 완료) -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <div class="confirm-icon">&#10004;&#65039;</div>
+    <div class="confirm-task-name" id="confirmTaskName"></div>
+    <div class="confirm-msg">완료했나요?</div>
+    <div class="confirm-btns">
+      <button class="btn btn-secondary" onclick="closeConfirm()">아니요</button>
+      <button class="btn btn-primary" onclick="confirmTodoDone()">네, 완료!</button>
+    </div>
+  </div>
 </div>
 
 <!-- TOAST -->
@@ -690,6 +752,22 @@ function cancelVoice() {
   audioChunks = [];
 }
 
+// ===== ACTIVE VOICE DISPATCH =====
+function stopActiveVoice() {
+  if (todoMediaRecorder && todoMediaRecorder.state === 'recording') {
+    stopTodoVoice();
+  } else if (mediaRecorder && mediaRecorder.state === 'recording') {
+    stopVoice();
+  }
+}
+function cancelActiveVoice() {
+  if (todoMediaRecorder && todoMediaRecorder.state === 'recording') {
+    cancelTodoVoice();
+  } else if (mediaRecorder && mediaRecorder.state === 'recording') {
+    cancelVoice();
+  }
+}
+
 // ===== BRAIN DUMP =====
 function openBrainDump() {
   document.getElementById('bdText').value = '';
@@ -811,6 +889,7 @@ async function init(){
   renderWeekGrid();
   renderCalendar();
   updateInsights();
+  renderVoiceTodos();
 }
 
 function switchView(v,el){
@@ -1004,6 +1083,147 @@ function renderCalendar(){
   document.getElementById('calGrid').innerHTML=html;
 }
 
+// ===== TODAY'S TO-DO (Voice) =====
+let voiceTodos = JSON.parse(localStorage.getItem('voiceTodos') || '[]');
+let pendingConfirmIdx = null;
+
+function renderVoiceTodos() {
+  const list = document.getElementById('todoList');
+  const count = document.getElementById('todoCount');
+  count.textContent = voiceTodos.length + '개';
+
+  if (voiceTodos.length === 0) {
+    list.innerHTML = '<div class="todo-empty">왼쪽 상단 🎙 버튼을 눌러<br>오늘 할 일을 말해보세요</div>';
+    return;
+  }
+  list.innerHTML = voiceTodos.map((item, i) =>
+    '<div class="todo-item" onclick="askTodoComplete(' + i + ')">' +
+    '<div class="todo-bullet"></div>' +
+    '<div class="todo-text">' + escapeHtml(item) + '</div>' +
+    '<div class="todo-arrow">›</div>' +
+    '</div>'
+  ).join('');
+}
+
+function askTodoComplete(idx) {
+  pendingConfirmIdx = idx;
+  document.getElementById('confirmTaskName').textContent = voiceTodos[idx];
+  document.getElementById('confirmOverlay').classList.add('show');
+}
+
+function closeConfirm() {
+  pendingConfirmIdx = null;
+  document.getElementById('confirmOverlay').classList.remove('show');
+}
+
+function confirmTodoDone() {
+  if (pendingConfirmIdx === null) return;
+  const idx = pendingConfirmIdx;
+
+  // Animate out
+  const items = document.querySelectorAll('.todo-item');
+  if (items[idx]) {
+    items[idx].classList.add('completing');
+  }
+
+  closeConfirm();
+
+  setTimeout(() => {
+    voiceTodos.splice(idx, 1);
+    localStorage.setItem('voiceTodos', JSON.stringify(voiceTodos));
+    renderVoiceTodos();
+    showToast('할 일 완료! 잘했어요 👏', 'success');
+  }, 350);
+}
+
+// Voice → AI → To-Do registration
+let todoMediaRecorder = null;
+let todoAudioChunks = [];
+let todoVoiceTimerInterval = null;
+let todoVoiceStartTime = 0;
+
+async function startTodoVoice() {
+  if (todoMediaRecorder && todoMediaRecorder.state === 'recording') {
+    stopTodoVoice();
+    return;
+  }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    todoAudioChunks = [];
+    todoMediaRecorder = new MediaRecorder(stream);
+    todoMediaRecorder.ondataavailable = e => { if(e.data.size > 0) todoAudioChunks.push(e.data); };
+    todoMediaRecorder.onstop = () => { stream.getTracks().forEach(t => t.stop()); };
+    todoMediaRecorder.start();
+
+    document.getElementById('headerVoiceBtn').classList.add('recording');
+    document.getElementById('voiceOverlay').classList.add('show');
+    todoVoiceStartTime = Date.now();
+    todoVoiceTimerInterval = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - todoVoiceStartTime) / 1000);
+      const m = Math.floor(elapsed / 60);
+      const s = String(elapsed % 60).padStart(2, '0');
+      document.getElementById('voiceTimer').textContent = m + ':' + s;
+    }, 1000);
+  } catch(e) {
+    showToast('마이크 권한이 필요합니다', 'error');
+  }
+}
+
+async function stopTodoVoice() {
+  if (!todoMediaRecorder) return;
+  clearInterval(todoVoiceTimerInterval);
+  document.getElementById('headerVoiceBtn').classList.remove('recording');
+  document.getElementById('voiceOverlay').classList.remove('show');
+
+  todoMediaRecorder.stop();
+  await new Promise(r => { todoMediaRecorder.addEventListener('stop', r, {once:true}); });
+
+  const blob = new Blob(todoAudioChunks, { type: 'audio/webm' });
+  const formData = new FormData();
+  formData.append('audio', blob, 'todo_recording.webm');
+
+  showToast('할 일 정리 중...', 'info');
+
+  try {
+    const resp = await fetch(API_BASE + '/voice/todo', { method: 'POST', body: formData });
+    const data = await resp.json();
+    if (resp.ok && data.todos && data.todos.length > 0) {
+      data.todos.forEach(item => voiceTodos.push(item));
+      localStorage.setItem('voiceTodos', JSON.stringify(voiceTodos));
+      renderVoiceTodos();
+      showToast(data.todos.length + '개 할 일이 등록됐어요!', 'success');
+    } else if (resp.ok && data.transcript) {
+      // Fallback: AI 미응답 시 transcript를 직접 정리
+      const items = data.transcript.split(/[,.\n]+/).map(s => s.trim()).filter(s => s.length > 1);
+      if (items.length > 0) {
+        items.forEach(item => voiceTodos.push(item));
+        localStorage.setItem('voiceTodos', JSON.stringify(voiceTodos));
+        renderVoiceTodos();
+        showToast(items.length + '개 할 일이 등록됐어요!', 'success');
+      } else {
+        showToast('할 일을 인식하지 못했어요', 'error');
+      }
+    } else {
+      showToast(data.error || '음성 처리 실패', 'error');
+    }
+  } catch(e) {
+    showToast('음성 전송 실패', 'error');
+  }
+  todoMediaRecorder = null;
+  todoAudioChunks = [];
+}
+
+function cancelTodoVoice() {
+  if (todoMediaRecorder && todoMediaRecorder.state === 'recording') {
+    todoMediaRecorder.stop();
+  }
+  clearInterval(todoVoiceTimerInterval);
+  document.getElementById('headerVoiceBtn').classList.remove('recording');
+  document.getElementById('voiceOverlay').classList.remove('show');
+  todoMediaRecorder = null;
+  todoAudioChunks = [];
+}
+
 // ===== UTILS =====
 function escapeHtml(str) {
   const div = document.createElement('div');
@@ -1017,8 +1237,10 @@ document.getElementById('bdModal').addEventListener('click', e => { if(e.target=
 
 // Keyboard shortcuts
 document.addEventListener('keydown', e => {
-  if(e.key==='Escape') { closeModal(); closeBdModal(); }
+  if(e.key==='Escape') { closeModal(); closeBdModal(); closeConfirm(); }
 });
+// Close confirm on overlay click
+document.getElementById('confirmOverlay').addEventListener('click', e => { if(e.target===e.currentTarget) closeConfirm(); });
 
 init();
 </script>

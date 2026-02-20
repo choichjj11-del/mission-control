@@ -129,10 +129,31 @@ async function generateWeeklyReport(weekSummary) {
   return callClaude(config.AI.REPORT_MODEL, systemPrompt, weekSummary, 800);
 }
 
+// ===== Voice To-Do Parser =====
+// Input: transcript from voice
+// Output: array of to-do strings
+async function parseVoiceTodos(transcript) {
+  const systemPrompt = `당신은 할 일 정리 도우미입니다.
+유저가 음성으로 말한 내용에서 할 일(To-Do) 항목들을 추출하세요.
+각 항목은 간결하고 명확한 한국어 문장으로 정리하세요.
+
+규칙:
+- 할 일이 아닌 일반 대화/인사는 무시
+- 중복 항목은 하나로 합치기
+- 각 항목은 15자 이내로 간결하게
+- 반드시 JSON 배열만 반환: ["할일1", "할일2", "할일3"]
+- 할 일이 없으면 빈 배열: []`;
+
+  const raw = await callClaude(config.AI.CLASSIFIER_MODEL, systemPrompt, transcript, 300);
+  const jsonStr = raw.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+  return JSON.parse(jsonStr);
+}
+
 module.exports = {
   transcribeAudio,
   classifyVoiceInput,
   parseBrainDump,
   generateDailyReport,
   generateWeeklyReport,
+  parseVoiceTodos,
 };
