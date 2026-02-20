@@ -52,14 +52,14 @@ body{background:var(--bg);color:var(--text);font-family:'Karla',sans-serif;font-
 .t-section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text3)}
 .t-section-count{font-size:10px;color:var(--text3);margin-left:auto}
 
-.t-item{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border-radius:8px;margin-bottom:3px;transition:all .15s;cursor:pointer}
+.t-item{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border-radius:8px;margin-bottom:3px;transition:all .15s;cursor:pointer;position:relative}
 .t-item:hover{background:var(--warm-bg)}
 .t-item.done{opacity:.35}
 
 .t-chk{width:17px;height:17px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;margin-top:2px;transition:all .15s;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .t-chk:hover{border-color:var(--warm)}
 .t-chk.done{background:var(--sage);border-color:var(--sage)}
-.t-chk.done::after{content:'✓';color:#fff;font-size:9px;font-weight:700}
+.t-chk.done::after{content:'\2713';color:#fff;font-size:9px;font-weight:700}
 
 .t-body{flex:1;min-width:0}
 .t-name{font-size:13px;font-weight:500;line-height:1.45}
@@ -75,10 +75,23 @@ body{background:var(--bg);color:var(--text);font-family:'Karla',sans-serif;font-
 
 .t-dur{font-size:10px;color:var(--text3);background:var(--bg);padding:2px 7px;border-radius:8px;flex-shrink:0;margin-top:2px;font-weight:500}
 
-/* ADD TASK */
-.add-row{padding:8px 20px}
-.add-btn{display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:8px;color:var(--text3);cursor:pointer;font-size:12px;transition:all .15s}
+/* TASK ACTIONS (edit/delete) */
+.t-actions{display:none;gap:4px;flex-shrink:0;margin-top:2px}
+.t-item:hover .t-actions{display:flex}
+.t-act-btn{width:22px;height:22px;border-radius:4px;border:none;background:transparent;cursor:pointer;font-size:11px;color:var(--text3);display:flex;align-items:center;justify-content:center;transition:all .12s}
+.t-act-btn:hover{background:var(--border);color:var(--text)}
+.t-act-btn.del:hover{background:var(--rose-bg);color:var(--rose)}
+
+/* ADD TASK / BOTTOM BAR */
+.bottom-bar{display:flex;gap:6px;padding:8px 20px;border-top:1px solid var(--border);flex-shrink:0}
+.add-btn{display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:8px;color:var(--text3);cursor:pointer;font-size:12px;transition:all .15s;flex:1}
 .add-btn:hover{background:var(--warm-bg);color:var(--warm)}
+.voice-btn{width:36px;height:36px;border-radius:50%;border:2px solid var(--border);background:var(--surface);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;font-size:14px;color:var(--text3)}
+.voice-btn:hover{border-color:var(--warm);color:var(--warm)}
+.voice-btn.recording{border-color:var(--rose);background:var(--rose-bg);color:var(--rose);animation:pulse 1.2s infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.bd-btn{width:36px;height:36px;border-radius:50%;border:2px solid var(--border);background:var(--surface);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;font-size:13px;color:var(--text3)}
+.bd-btn:hover{border-color:var(--lavender);color:var(--lavender)}
 
 /* ===== RIGHT PANEL ===== */
 .r-title{font-family:'Crimson Pro',serif;font-size:20px;font-weight:600;margin-bottom:16px}
@@ -121,6 +134,18 @@ body{background:var(--bg);color:var(--text);font-family:'Karla',sans-serif;font-
 .cal-cell.today-cell{box-shadow:inset 0 0 0 2px var(--warm);font-weight:700}
 .cal-cell .cal-dot{position:absolute;bottom:3px;width:4px;height:4px;border-radius:50%;background:var(--sage)}
 
+/* AI REPORT */
+.report-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:10px}
+.report-tabs{display:flex;gap:0;margin-bottom:12px;border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.rpt-btn{flex:1;padding:6px 0;text-align:center;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;color:var(--text2);background:var(--surface);border:none}
+.rpt-btn:hover{background:var(--warm-bg)}
+.rpt-btn.active{background:var(--warm);color:#fff}
+.rpt-btn+.rpt-btn{border-left:1px solid var(--border)}
+.report-body{font-size:12px;line-height:1.8;color:var(--text2);white-space:pre-wrap}
+.report-loading{text-align:center;padding:20px;color:var(--text3);font-size:12px}
+.report-stats{display:flex;gap:12px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.rpt-stat{font-size:10px;color:var(--text3)}.rpt-stat b{color:var(--text)}
+
 /* VPS */
 .vps-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .vps-item{display:flex;align-items:center;gap:6px;font-size:12px;padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px}
@@ -132,6 +157,65 @@ body{background:var(--bg);color:var(--text);font-family:'Karla',sans-serif;font-
 .comp-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;font-size:12px;line-height:1.7;color:var(--text2)}
 .comp-highlight{color:var(--warm);font-weight:700}
 .comp-bad{color:var(--rose);font-weight:600}
+
+/* ===== MODAL ===== */
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:1000}
+.modal-overlay.show{display:flex}
+.modal{background:var(--surface);border-radius:14px;width:440px;max-width:92vw;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.15)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 0}
+.modal-title{font-family:'Crimson Pro',serif;font-size:18px;font-weight:600}
+.modal-close{width:28px;height:28px;border-radius:6px;border:none;background:transparent;cursor:pointer;font-size:16px;color:var(--text3);display:flex;align-items:center;justify-content:center}
+.modal-close:hover{background:var(--bg);color:var(--text)}
+.modal-body{padding:14px 20px 20px}
+.modal-body label{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin-bottom:4px;margin-top:12px}
+.modal-body label:first-child{margin-top:0}
+.modal-body input,.modal-body textarea,.modal-body select{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-family:inherit;font-size:13px;color:var(--text);background:var(--surface);outline:none;transition:border-color .15s}
+.modal-body input:focus,.modal-body textarea:focus,.modal-body select:focus{border-color:var(--warm)}
+.modal-body textarea{resize:vertical;min-height:60px}
+.modal-row{display:flex;gap:10px}
+.modal-row>div{flex:1}
+.modal-foot{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.btn{padding:8px 18px;border-radius:8px;border:none;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
+.btn-primary{background:var(--warm);color:#fff}
+.btn-primary:hover{background:var(--warm2)}
+.btn-secondary{background:var(--bg);color:var(--text2)}
+.btn-secondary:hover{background:var(--border)}
+.btn-danger{background:var(--rose-bg);color:var(--rose)}
+.btn-danger:hover{background:var(--rose);color:#fff}
+
+/* BRAIN DUMP MODAL */
+.bd-result{margin-top:12px;padding:12px;background:var(--bg);border-radius:8px;font-size:12px;line-height:1.6;color:var(--text2)}
+.bd-result-item{padding:4px 0;border-bottom:1px solid var(--border)}
+.bd-result-item:last-child{border-bottom:none}
+
+/* VOICE RECORDING OVERLAY */
+.voice-overlay{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:2px solid var(--rose);padding:16px 24px;display:none;align-items:center;gap:16px;z-index:999;box-shadow:0 -4px 20px rgba(0,0,0,.1)}
+.voice-overlay.show{display:flex}
+.voice-wave{flex:1;height:24px;display:flex;align-items:center;gap:2px}
+.voice-wave .bar{width:3px;background:var(--rose);border-radius:2px;animation:wave 1s infinite ease-in-out}
+.voice-wave .bar:nth-child(2){animation-delay:.1s}
+.voice-wave .bar:nth-child(3){animation-delay:.2s}
+.voice-wave .bar:nth-child(4){animation-delay:.3s}
+.voice-wave .bar:nth-child(5){animation-delay:.4s}
+.voice-wave .bar:nth-child(6){animation-delay:.15s}
+.voice-wave .bar:nth-child(7){animation-delay:.25s}
+.voice-wave .bar:nth-child(8){animation-delay:.35s}
+@keyframes wave{0%,100%{height:4px}50%{height:20px}}
+.voice-timer{font-size:14px;font-weight:600;color:var(--text);min-width:40px;font-variant-numeric:tabular-nums}
+.voice-stop{padding:8px 20px;border-radius:20px;border:none;background:var(--rose);color:#fff;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer}
+.voice-cancel{padding:8px 14px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-family:inherit;font-size:12px;cursor:pointer}
+
+/* VOICE RESULT */
+.voice-result{margin-top:12px;padding:12px;background:var(--sage-bg);border-radius:8px;border:1px solid var(--sage);font-size:12px;line-height:1.6;color:var(--text)}
+.voice-result .vr-label{font-size:10px;font-weight:700;color:var(--sage);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+
+/* TOAST */
+.toast-container{position:fixed;bottom:24px;right:24px;z-index:2000;display:flex;flex-direction:column;gap:8px}
+.toast{padding:10px 16px;border-radius:8px;font-size:12px;font-weight:500;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,.15);animation:toastIn .3s ease;max-width:320px}
+.toast.success{background:var(--sage)}
+.toast.error{background:var(--rose)}
+.toast.info{background:var(--slate)}
+@keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
 /* SCROLLBAR */
 ::-webkit-scrollbar{width:5px}
@@ -146,6 +230,7 @@ body{background:var(--bg);color:var(--text);font-family:'Karla',sans-serif;font-
   .insights{grid-template-columns:1fr 1fr}
   .wk-grid{grid-template-columns:repeat(7,1fr);gap:3px}
   .vps-grid{grid-template-columns:1fr}
+  .modal{width:95vw}
 }
 
 /* ANIM */
@@ -166,7 +251,7 @@ body{background:var(--bg);color:var(--text);font-family:'Karla',sans-serif;font-
   <div class="l-header">
     <div class="greeting">Good evening, Brian</div>
     <div class="l-title">Mission Control</div>
-    <div class="l-sub" id="leftSub">38 tasks · 2 done</div>
+    <div class="l-sub" id="leftSub">38 tasks &middot; 2 done</div>
   </div>
 
   <div class="view-switch">
@@ -180,7 +265,11 @@ body{background:var(--bg);color:var(--text);font-family:'Karla',sans-serif;font-
 
   <div class="task-scroll" id="taskScroll"></div>
 
-  <div class="add-row"><div class="add-btn">+ 태스크 추가</div></div>
+  <div class="bottom-bar">
+    <div class="add-btn" onclick="openAddModal()">+ &#53468;&#49828;&#53356; &#52628;&#44032;</div>
+    <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()" title="&#51020;&#49457; &#51077;&#47141;">&#127908;</button>
+    <button class="bd-btn" onclick="openBrainDump()" title="&#48652;&#47112;&#51064;&#45924;&#54532;">&#128161;</button>
+  </div>
 </div>
 
 <!-- ===== RIGHT PANEL ===== -->
@@ -189,57 +278,156 @@ body{background:var(--bg);color:var(--text);font-family:'Karla',sans-serif;font-
 
   <!-- INSIGHTS -->
   <div class="insights" id="insightsRow">
-    <div class="ins-card"><div class="ins-label">진행률</div><div class="ins-val" id="insPct" style="color:var(--warm)">5%</div><div class="ins-sub" id="insDone">2/38 완료</div></div>
-    <div class="ins-card"><div class="ins-label">즉시 실행</div><div class="ins-val" style="color:var(--rose)">9</div><div class="ins-sub">이번 주 마감</div></div>
-    <div class="ins-card"><div class="ins-label">오늘 예상</div><div class="ins-val" style="color:var(--sage)">1.5h</div><div class="ins-sub">저녁 작업 기준</div></div>
-    <div class="ins-card"><div class="ins-label">경쟁 순위</div><div class="ins-val" style="color:var(--rose)">11위</div><div class="ins-sub">12채널 중</div></div>
+    <div class="ins-card"><div class="ins-label">&#51652;&#54665;&#47456;</div><div class="ins-val" id="insPct" style="color:var(--warm)">5%</div><div class="ins-sub" id="insDone">2/38 &#50756;&#47308;</div></div>
+    <div class="ins-card"><div class="ins-label">&#51593;&#49884; &#49892;&#54665;</div><div class="ins-val" id="insUrgent" style="color:var(--rose)">9</div><div class="ins-sub">&#51060;&#48264; &#51452; &#47560;&#44048;</div></div>
+    <div class="ins-card"><div class="ins-label">&#50724;&#45720; &#50696;&#49345;</div><div class="ins-val" style="color:var(--sage)">1.5h</div><div class="ins-sub">&#51200;&#45377; &#51089;&#50629; &#44592;&#51456;</div></div>
+    <div class="ins-card"><div class="ins-label">&#44221;&#51137; &#49692;&#50948;</div><div class="ins-val" style="color:var(--rose)">11&#50948;</div><div class="ins-sub">12&#52292;&#45328; &#51473;</div></div>
+  </div>
+
+  <!-- AI REPORT -->
+  <div class="r-subtitle">&#128202; AI &#47532;&#54252;&#53944;</div>
+  <div class="report-card">
+    <div class="report-tabs">
+      <button class="rpt-btn active" onclick="loadReport('daily',this)">&#45936;&#51068;&#47532;</button>
+      <button class="rpt-btn" onclick="loadReport('weekly',this)">&#50948;&#53364;&#47532;</button>
+      <button class="rpt-btn" onclick="loadReport('stats',this)">&#53685;&#44228;</button>
+    </div>
+    <div id="reportBody" class="report-body" style="color:var(--text3);text-align:center;padding:12px">&#47532;&#54252;&#53944; &#53485;&#51012; &#53364;&#47533;&#54616;&#47732; AI&#44032; &#48516;&#49437;&#54633;&#45768;&#45796;</div>
   </div>
 
   <!-- OBJECTIVES -->
-  <div class="r-subtitle">🎯 목표</div>
+  <div class="r-subtitle">&#127919; &#47785;&#54364;</div>
   <div id="objectivesArea">
     <div class="obj">
-      <div class="obj-head"><div class="obj-title">💰 월 수익 1,000만원</div><div class="obj-pct">시작 전</div></div>
-      <div class="obj-desc">아내와 매일 저녁 1~2시간 · 쿠팡파트너스 + 글로벌 어필리에이트</div>
+      <div class="obj-head"><div class="obj-title">&#128176; &#50900; &#49688;&#51061; 1,000&#47564;&#50896;</div><div class="obj-pct">&#49884;&#51089; &#51204;</div></div>
+      <div class="obj-desc">&#50500;&#45236;&#50752; &#47588;&#51068; &#51200;&#45377; 1~2&#49884;&#44036; &middot; &#53216;&#54049;&#54028;&#53944;&#45320;&#49828; + &#44544;&#47196;&#48268; &#50612;&#54596;&#47532;&#50640;&#51060;&#53944;</div>
     </div>
     <div class="obj">
-      <div class="obj-head"><div class="obj-title">📈 평균 재생 15,000+</div><div class="obj-pct">0%</div></div>
-      <div class="obj-desc">트렌딩뮤직(52→90%) · 포스팅(2.6→1/일) · 영상길이(19.6→25초)</div>
+      <div class="obj-head"><div class="obj-title">&#128200; &#54217;&#44512; &#51116;&#49373; 15,000+</div><div class="obj-pct">0%</div></div>
+      <div class="obj-desc">&#53944;&#47116;&#46377;&#48624;&#51649;(52&#8594;90%) &middot; &#54252;&#49828;&#54021;(2.6&#8594;1/&#51068;) &middot; &#50689;&#49345;&#44600;&#51060;(19.6&#8594;25&#52488;)</div>
       <div class="obj-bar"><div class="obj-fill" style="width:0%;background:var(--warm)"></div></div>
     </div>
     <div class="obj">
-      <div class="obj-head"><div class="obj-title">🌏 다국어 파일럿</div><div class="obj-pct">0%</div></div>
-      <div class="obj-desc">영어/일본어 10개 영상 · ElevenLabs TTS · 추가 비용 0</div>
+      <div class="obj-head"><div class="obj-title">&#127758; &#45796;&#44397;&#50612; &#54028;&#51068;&#47103;</div><div class="obj-pct">0%</div></div>
+      <div class="obj-desc">&#50689;&#50612;/&#51068;&#48376;&#50612; 10&#44060; &#50689;&#49345; &middot; ElevenLabs TTS &middot; &#52628;&#44032; &#48708;&#50857; 0</div>
       <div class="obj-bar"><div class="obj-fill" style="width:0%;background:var(--sage)"></div></div>
     </div>
   </div>
 
   <!-- WEEKLY KANBAN -->
-  <div class="r-subtitle">📅 이번 주 분배</div>
+  <div class="r-subtitle">&#128197; &#51060;&#48264; &#51452; &#48516;&#48176;</div>
   <div class="wk-grid" id="weekGrid"></div>
 
   <!-- MONTHLY CALENDAR -->
-  <div class="r-subtitle">📆 2월 — 완료 히트맵</div>
+  <div class="r-subtitle">&#128198; 2&#50900; &#8212; &#50756;&#47308; &#55176;&#53944;&#47605;</div>
   <div class="cal-grid" id="calGrid"></div>
 
   <!-- COMPETITION -->
-  <div class="r-subtitle">📊 경쟁 분석</div>
+  <div class="r-subtitle">&#128202; &#44221;&#51137; &#48516;&#49437;</div>
   <div class="comp-card">
-    13채널 700릴스 분석 · Top 3: interior__home_(71), tem.duck(70), hehe_home_tem(70)<br>
-    갓템홈: <span class="comp-bad">28점 (11위/12)</span><br>
-    <span class="comp-highlight">같은 아이템인데 갓템홈만 3~8% 성과 → 콘텐츠 도달력이 원인</span>
+    13&#52292;&#45328; 700&#47540;&#49828; &#48516;&#49437; &middot; Top 3: interior__home_(71), tem.duck(70), hehe_home_tem(70)<br>
+    &#44055;&#53596;&#54856;: <span class="comp-bad">28&#51216; (11&#50948;/12)</span><br>
+    <span class="comp-highlight">&#44057;&#51008; &#50500;&#51060;&#53596;&#51064;&#45936; &#44055;&#53596;&#54856;&#47564; 3~8% &#49457;&#44284; &#8594; &#53080;&#53584;&#52768; &#46020;&#45804;&#47141;&#51060; &#50896;&#51064;</span>
   </div>
 
   <!-- VPS -->
-  <div class="r-subtitle">🖥️ VPS 상태</div>
+  <div class="r-subtitle">&#128421;&#65039; VPS &#49345;&#53468;</div>
   <div class="vps-grid">
     <div class="vps-item"><div class="vps-dot" style="background:var(--sage)"></div><div class="vps-name">n8n</div><div class="vps-status">:5678</div></div>
     <div class="vps-item"><div class="vps-dot" style="background:var(--sage)"></div><div class="vps-name">postgres</div><div class="vps-status">:5432</div></div>
     <div class="vps-item"><div class="vps-dot" style="background:var(--sage)"></div><div class="vps-name">daily-manager</div><div class="vps-status">polling</div></div>
-    <div class="vps-item"><div class="vps-dot" style="background:var(--warm)"></div><div class="vps-name">inpock-selenium</div><div class="vps-status">대기</div></div>
+    <div class="vps-item"><div class="vps-dot" style="background:var(--warm)"></div><div class="vps-name">inpock-selenium</div><div class="vps-status">&#45824;&#44592;</div></div>
   </div>
 </div>
 </div>
+
+<!-- ===== TASK ADD/EDIT MODAL ===== -->
+<div class="modal-overlay" id="taskModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="modalTitle">&#53468;&#49828;&#53356; &#52628;&#44032;</div>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="taskEditId">
+      <label>&#51060;&#47492;</label>
+      <input type="text" id="taskName" placeholder="&#53468;&#49828;&#53356; &#51060;&#47492;...">
+      <label>&#49444;&#47749;</label>
+      <textarea id="taskDesc" placeholder="&#49444;&#47749; (&#49440;&#53469;)"></textarea>
+      <div class="modal-row">
+        <div>
+          <label>&#52852;&#53580;&#44256;&#47532;</label>
+          <select id="taskCat">
+            <option value="content">Content</option>
+            <option value="auto">Automation</option>
+            <option value="growth">Growth</option>
+            <option value="infra">Infra</option>
+          </select>
+        </div>
+        <div>
+          <label>&#50864;&#49440;&#49692;&#50948;</label>
+          <select id="taskPri">
+            <option value="&#51593;&#49884;">&#51593;&#49884; &#49892;&#54665;</option>
+            <option value="&#45800;&#44592;" selected>&#45800;&#44592;</option>
+            <option value="&#51473;&#44592;">&#51473;&#44592;</option>
+            <option value="&#51109;&#44592;">&#51109;&#44592;</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-row">
+        <div>
+          <label>&#49465;&#49496;</label>
+          <input type="text" id="taskSection" placeholder="&#50696;: &#44055;&#53596;&#54856; &#44060;&#49440;">
+        </div>
+        <div>
+          <label>&#49548;&#50836; &#49884;&#44036; (&#48516;)</label>
+          <input type="number" id="taskDur" placeholder="30" min="1">
+        </div>
+      </div>
+      <label>&#48176;&#51221;&#51068; (Day #)</label>
+      <input type="number" id="taskDay" placeholder="1~14, &#48712; &#44050;=&#48177;&#47196;&#44536;" min="1" max="14">
+      <div class="modal-foot">
+        <button class="btn btn-danger" id="taskDeleteBtn" onclick="deleteTaskFromModal()" style="display:none;margin-right:auto">&#49325;&#51228;</button>
+        <button class="btn btn-secondary" onclick="closeModal()">&#52712;&#49548;</button>
+        <button class="btn btn-primary" onclick="saveTask()">&#51200;&#51109;</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== BRAIN DUMP MODAL ===== -->
+<div class="modal-overlay" id="bdModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">&#128161; &#48652;&#47112;&#51064;&#45924;&#54532;</div>
+      <button class="modal-close" onclick="closeBdModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <label>&#49373;&#44033;&#51012; &#51088;&#50976;&#47213;&#44172; &#51077;&#47141;&#54616;&#49464;&#50836;</label>
+      <textarea id="bdText" rows="5" placeholder="&#50696;: &#48624;&#54000; &#52852;&#53580;&#44256;&#47532; &#54644;&#50808;&#50640;&#49436;&#46020; &#47673;&#55196; &#44163; &#44057;&#51008;&#45936;... &#50689;&#50612; &#52292;&#45328;&#46020; &#47564;&#46308;&#50612;&#48380;&#44620;?"></textarea>
+      <div class="modal-foot">
+        <button class="btn btn-secondary" onclick="closeBdModal()">&#52712;&#49548;</button>
+        <button class="btn btn-primary" id="bdSubmitBtn" onclick="submitBrainDump()">AI &#48516;&#49437;</button>
+      </div>
+      <div id="bdResult"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== VOICE RECORDING BAR ===== -->
+<div class="voice-overlay" id="voiceOverlay">
+  <div style="font-size:13px;font-weight:600;color:var(--rose);flex-shrink:0">&#127908; &#45433;&#51020; &#51473;</div>
+  <div class="voice-wave">
+    <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+    <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+  </div>
+  <div class="voice-timer" id="voiceTimer">0:00</div>
+  <button class="voice-stop" onclick="stopVoice()">&#51204;&#49569;</button>
+  <button class="voice-cancel" onclick="cancelVoice()">&#52712;&#49548;</button>
+</div>
+
+<!-- TOAST -->
+<div class="toast-container" id="toastContainer"></div>
 
 <script>
 // ===== CONFIG =====
@@ -250,18 +438,34 @@ let TASKS = [];
 
 const CAT_STYLES={content:'tag-content',auto:'tag-auto',growth:'tag-growth',infra:'tag-infra'};
 const CAT_LABELS={content:'Content',auto:'Automation',growth:'Growth',infra:'Infra'};
-const PRI_COLORS={즉시:'var(--rose)',단기:'var(--warm)',중기:'var(--slate)',장기:'var(--text3)'};
-const PRI_LABELS={즉시:'🔴 즉시 실행',단기:'🟡 단기',중기:'🟢 중기',장기:'🔵 장기'};
+const PRI_COLORS={'\uC989\uC2DC':'var(--rose)','\uB2E8\uAE30':'var(--warm)','\uC911\uAE30':'var(--slate)','\uC7A5\uAE30':'var(--text3)'};
+const PRI_LABELS={'\uC989\uC2DC':'\uD83D\uDD34 \uC989\uC2DC \uC2E4\uD589','\uB2E8\uAE30':'\uD83D\uDFE1 \uB2E8\uAE30','\uC911\uAE30':'\uD83D\uDFE2 \uC911\uAE30','\uC7A5\uAE30':'\uD83D\uDD35 \uC7A5\uAE30'};
 
 let currentView='daily';
-let currentDay=3; // Wed (0=Mon)
+let currentDay=3;
 const TODAY=new Date().getDate();
 const MONTH_DAYS=28;
+
+// Voice recording state
+let mediaRecorder=null;
+let audioChunks=[];
+let voiceTimerInterval=null;
+let voiceStartTime=0;
+
+// ===== TOAST =====
+function showToast(msg, type='info') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = 'toast ' + type;
+  toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(() => { toast.style.opacity='0'; toast.style.transform='translateY(10px)'; setTimeout(()=>toast.remove(),300); }, 3000);
+}
 
 // ===== API HELPERS =====
 async function fetchTasks(){
   try {
-    const resp = await fetch(`${API_BASE}/tasks`);
+    const resp = await fetch(API_BASE + '/tasks');
     const data = await resp.json();
     TASKS = data.tasks.map(t => ({
       id: t.id,
@@ -272,10 +476,12 @@ async function fetchTasks(){
       sub: t.section || '',
       done: t.status === 'done',
       dur: t.duration_min ? (t.duration_min >= 60 ? Math.round(t.duration_min/60)+'h' : t.duration_min+'m') : null,
+      duration_min: t.duration_min,
       day: t.day,
       high: t.tags && t.tags.includes('high'),
       highlight: t.tags && t.tags.includes('highlight'),
       done_at: t.done_at,
+      tags: t.tags || [],
     }));
   } catch(e) {
     console.warn('API not available, using empty task list:', e.message);
@@ -285,27 +491,315 @@ async function fetchTasks(){
 async function toggleTask(id) {
   const task = TASKS.find(t => t.id === id);
   if (!task) return;
-
   const newStatus = task.done ? 'todo' : 'done';
-
-  // Optimistic UI update
   task.done = !task.done;
-  renderTasks();
-  updateInsights();
-  renderCalendar();
-
+  renderTasks(); updateInsights(); renderCalendar();
   try {
-    await fetch(`${API_BASE}/tasks/${id}`, {
+    await fetch(API_BASE + '/tasks/' + id, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: newStatus }),
     });
   } catch(e) {
-    // Revert on error
     task.done = !task.done;
-    renderTasks();
-    updateInsights();
-    console.error('Failed to update task:', e);
+    renderTasks(); updateInsights();
+    showToast('\uC5C5\uB370\uC774\uD2B8 \uC2E4\uD328', 'error');
+  }
+}
+
+async function deleteTask(id) {
+  if (!confirm('\uC774 \uD0DC\uC2A4\uD06C\uB97C \uC0AD\uC81C\uD560\uAE4C\uC694?')) return;
+  try {
+    const resp = await fetch(API_BASE + '/tasks/' + id, { method: 'DELETE' });
+    if (resp.ok) {
+      TASKS = TASKS.filter(t => t.id !== id);
+      renderTasks(); updateInsights(); renderWeekGrid(); renderCalendar();
+      showToast('\uD0DC\uC2A4\uD06C \uC0AD\uC81C\uB428', 'success');
+    }
+  } catch(e) {
+    showToast('\uC0AD\uC81C \uC2E4\uD328', 'error');
+  }
+}
+
+// ===== TASK MODAL (ADD/EDIT) =====
+function openAddModal() {
+  document.getElementById('modalTitle').textContent = '\uD0DC\uC2A4\uD06C \uCD94\uAC00';
+  document.getElementById('taskEditId').value = '';
+  document.getElementById('taskName').value = '';
+  document.getElementById('taskDesc').value = '';
+  document.getElementById('taskCat').value = 'content';
+  document.getElementById('taskPri').value = '\uB2E8\uAE30';
+  document.getElementById('taskSection').value = '';
+  document.getElementById('taskDur').value = '';
+  document.getElementById('taskDay').value = '';
+  document.getElementById('taskDeleteBtn').style.display = 'none';
+  document.getElementById('taskModal').classList.add('show');
+}
+
+function openEditModal(id) {
+  const t = TASKS.find(x => x.id === id);
+  if (!t) return;
+  document.getElementById('modalTitle').textContent = '\uD0DC\uC2A4\uD06C \uD3B8\uC9D1';
+  document.getElementById('taskEditId').value = t.id;
+  document.getElementById('taskName').value = t.name;
+  document.getElementById('taskDesc').value = t.desc;
+  document.getElementById('taskCat').value = t.cat;
+  document.getElementById('taskPri').value = t.pri;
+  document.getElementById('taskSection').value = t.sub;
+  document.getElementById('taskDur').value = t.duration_min || '';
+  document.getElementById('taskDay').value = t.day || '';
+  document.getElementById('taskDeleteBtn').style.display = 'inline-block';
+  document.getElementById('taskModal').classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('taskModal').classList.remove('show');
+}
+
+async function saveTask() {
+  const editId = document.getElementById('taskEditId').value;
+  const name = document.getElementById('taskName').value.trim();
+  if (!name) { showToast('\uC774\uB984\uC744 \uC785\uB825\uD558\uC138\uC694', 'error'); return; }
+
+  const body = {
+    name,
+    desc: document.getElementById('taskDesc').value.trim(),
+    category: document.getElementById('taskCat').value,
+    priority: document.getElementById('taskPri').value,
+    section: document.getElementById('taskSection').value.trim(),
+    duration_min: parseInt(document.getElementById('taskDur').value) || null,
+    day: parseInt(document.getElementById('taskDay').value) || null,
+  };
+
+  try {
+    let resp;
+    if (editId) {
+      resp = await fetch(API_BASE + '/tasks/' + editId, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+    } else {
+      resp = await fetch(API_BASE + '/tasks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+    }
+    if (resp.ok) {
+      closeModal();
+      await fetchTasks();
+      renderTasks(); updateInsights(); renderWeekGrid(); renderCalendar();
+      showToast(editId ? '\uD0DC\uC2A4\uD06C \uC218\uC815\uB428' : '\uD0DC\uC2A4\uD06C \uCD94\uAC00\uB428', 'success');
+    }
+  } catch(e) {
+    showToast('\uC800\uC7A5 \uC2E4\uD328', 'error');
+  }
+}
+
+async function deleteTaskFromModal() {
+  const id = document.getElementById('taskEditId').value;
+  if (!id) return;
+  closeModal();
+  await deleteTask(+id);
+}
+
+// ===== VOICE RECORDING =====
+async function toggleVoice() {
+  if (mediaRecorder && mediaRecorder.state === 'recording') {
+    stopVoice();
+    return;
+  }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    audioChunks = [];
+    mediaRecorder = new MediaRecorder(stream);
+    mediaRecorder.ondataavailable = e => { if(e.data.size>0) audioChunks.push(e.data); };
+    mediaRecorder.onstop = () => { stream.getTracks().forEach(t => t.stop()); };
+    mediaRecorder.start();
+
+    document.getElementById('voiceBtn').classList.add('recording');
+    document.getElementById('voiceOverlay').classList.add('show');
+    voiceStartTime = Date.now();
+    voiceTimerInterval = setInterval(updateVoiceTimer, 1000);
+  } catch(e) {
+    showToast('\uB9C8\uC774\uD06C \uAD8C\uD55C\uC774 \uD544\uC694\uD569\uB2C8\uB2E4', 'error');
+  }
+}
+
+function updateVoiceTimer() {
+  const elapsed = Math.floor((Date.now() - voiceStartTime) / 1000);
+  const m = Math.floor(elapsed / 60);
+  const s = String(elapsed % 60).padStart(2, '0');
+  document.getElementById('voiceTimer').textContent = m + ':' + s;
+}
+
+async function stopVoice() {
+  if (!mediaRecorder) return;
+  clearInterval(voiceTimerInterval);
+  document.getElementById('voiceBtn').classList.remove('recording');
+  document.getElementById('voiceOverlay').classList.remove('show');
+
+  mediaRecorder.stop();
+  await new Promise(r => { mediaRecorder.addEventListener('stop', r, {once:true}); });
+
+  const blob = new Blob(audioChunks, { type: 'audio/webm' });
+  const formData = new FormData();
+  formData.append('audio', blob, 'recording.webm');
+
+  showToast('\uC74C\uC131 \uCC98\uB9AC \uC911...', 'info');
+
+  try {
+    const resp = await fetch(API_BASE + '/voice/upload', { method: 'POST', body: formData });
+    const data = await resp.json();
+    if (resp.ok) {
+      showToast('\uC74C\uC131 \uCC98\uB9AC \uC644\uB8CC!', 'success');
+      await fetchTasks();
+      renderTasks(); updateInsights(); renderWeekGrid(); renderCalendar();
+      // Show transcript result
+      if (data.transcript) {
+        let actionSummary = '';
+        if (data.actions_taken && data.actions_taken.length > 0) {
+          actionSummary = data.actions_taken.map(a => {
+            if (a.action === 'check') return '\u2705 ' + (a.task_name || '') + ' \uC644\uB8CC';
+            if (a.action === 'add') return '\u2795 ' + (a.task_name || '') + ' \uCD94\uAC00';
+            if (a.action === 'update') return '\u270F\uFE0F ' + (a.task_name || '') + ' \uC218\uC815';
+            return JSON.stringify(a);
+          }).join('\n');
+        }
+        alert('\uD83C\uDFA4 \uC74C\uC131 \uC778\uC2DD:\n' + data.transcript + (actionSummary ? '\n\n\uC2E4\uD589\uB41C \uC561\uC158:\n' + actionSummary : ''));
+      }
+    } else {
+      showToast(data.error || '\uC74C\uC131 \uCC98\uB9AC \uC2E4\uD328', 'error');
+    }
+  } catch(e) {
+    showToast('\uC74C\uC131 \uC804\uC1A1 \uC2E4\uD328', 'error');
+  }
+  mediaRecorder = null;
+  audioChunks = [];
+}
+
+function cancelVoice() {
+  if (mediaRecorder && mediaRecorder.state === 'recording') {
+    mediaRecorder.stop();
+  }
+  clearInterval(voiceTimerInterval);
+  document.getElementById('voiceBtn').classList.remove('recording');
+  document.getElementById('voiceOverlay').classList.remove('show');
+  mediaRecorder = null;
+  audioChunks = [];
+}
+
+// ===== BRAIN DUMP =====
+function openBrainDump() {
+  document.getElementById('bdText').value = '';
+  document.getElementById('bdResult').innerHTML = '';
+  document.getElementById('bdSubmitBtn').disabled = false;
+  document.getElementById('bdSubmitBtn').textContent = 'AI \uBD84\uC11D';
+  document.getElementById('bdModal').classList.add('show');
+}
+function closeBdModal() {
+  document.getElementById('bdModal').classList.remove('show');
+}
+
+async function submitBrainDump() {
+  const text = document.getElementById('bdText').value.trim();
+  if (!text) { showToast('\uD14D\uC2A4\uD2B8\uB97C \uC785\uB825\uD558\uC138\uC694', 'error'); return; }
+
+  const btn = document.getElementById('bdSubmitBtn');
+  btn.disabled = true;
+  btn.textContent = '\uBD84\uC11D \uC911...';
+
+  try {
+    const resp = await fetch(API_BASE + '/braindump', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text }),
+    });
+    const data = await resp.json();
+    if (resp.ok) {
+      showToast('\uBE0C\uB808\uC778\uB364\uD504 \uBD84\uC11D \uC644\uB8CC!', 'success');
+      await fetchTasks();
+      renderTasks(); updateInsights(); renderWeekGrid(); renderCalendar();
+
+      // Show results
+      let html = '';
+      if (data.summary) html += '<div style="margin-bottom:8px;font-weight:600;color:var(--text)">' + escapeHtml(data.summary) + '</div>';
+      if (data.new_tasks && data.new_tasks.length > 0) {
+        html += '<div class="bd-result">';
+        html += '<div style="font-weight:700;color:var(--sage);font-size:10px;margin-bottom:4px">\uC0C8 \uD0DC\uC2A4\uD06C</div>';
+        data.new_tasks.forEach(t => {
+          html += '<div class="bd-result-item">\u2795 ' + escapeHtml(t.name) + ' <span style="color:var(--text3)">[' + t.category + '/' + t.priority + ']</span></div>';
+        });
+        html += '</div>';
+      }
+      if (data.updated_tasks && data.updated_tasks.length > 0) {
+        html += '<div class="bd-result" style="margin-top:8px">';
+        html += '<div style="font-weight:700;color:var(--warm);font-size:10px;margin-bottom:4px">\uC218\uC815\uB41C \uD0DC\uC2A4\uD06C</div>';
+        data.updated_tasks.forEach(t => {
+          html += '<div class="bd-result-item">\u270F\uFE0F ' + escapeHtml(t.name) + ' (' + t.field + ')</div>';
+        });
+        html += '</div>';
+      }
+      if (!html) html = '<div class="bd-result">\uBD84\uC11D \uC644\uB8CC \u2014 \uBCC0\uACBD\uC0AC\uD56D \uC5C6\uC74C</div>';
+      document.getElementById('bdResult').innerHTML = html;
+    } else {
+      showToast(data.error || '\uBD84\uC11D \uC2E4\uD328', 'error');
+    }
+  } catch(e) {
+    showToast('\uBE0C\uB808\uC778\uB364\uD504 \uC804\uC1A1 \uC2E4\uD328', 'error');
+  }
+  btn.disabled = false;
+  btn.textContent = 'AI \uBD84\uC11D';
+}
+
+// ===== AI REPORT =====
+async function loadReport(type, el) {
+  document.querySelectorAll('.rpt-btn').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+
+  const body = document.getElementById('reportBody');
+  body.innerHTML = '<div class="report-loading">\uBD84\uC11D \uC911...</div>';
+
+  try {
+    const resp = await fetch(API_BASE + '/report/' + type);
+    const data = await resp.json();
+
+    if (type === 'stats') {
+      let html = '<div style="font-weight:600;color:var(--text);margin-bottom:8px">\uD1B5\uACC4 \uC694\uC57D</div>';
+      html += '\uC804\uCCB4: ' + data.done + '/' + data.total + ' (' + data.percent + '%)\n\n';
+      if (data.by_priority) {
+        html += '\uC6B0\uC120\uC21C\uC704\uBCC4:\n';
+        for (const [k,v] of Object.entries(data.by_priority)) {
+          html += '  ' + k + ': ' + v.done + '/' + v.total + '\n';
+        }
+      }
+      if (data.by_category) {
+        html += '\n\uCE74\uD14C\uACE0\uB9AC\uBCC4:\n';
+        for (const [k,v] of Object.entries(data.by_category)) {
+          html += '  ' + (CAT_LABELS[k]||k) + ': ' + v.done + '/' + v.total + '\n';
+        }
+      }
+      body.innerHTML = html;
+    } else {
+      let html = '';
+      if (data.report) html += escapeHtml(data.report);
+      if (data.stats) {
+        html += '\n\n<div class="report-stats">';
+        if (type === 'daily') {
+          html += '<div class="rpt-stat">\uC624\uB298 \uC644\uB8CC: <b>' + data.stats.today_done + '</b></div>';
+          html += '<div class="rpt-stat">\uC624\uB298 \uCD94\uAC00: <b>' + data.stats.today_added + '</b></div>';
+          html += '<div class="rpt-stat">\uC989\uC2DC \uB0A8\uC740: <b>' + data.stats.urgent_remaining + '</b></div>';
+        } else {
+          html += '<div class="rpt-stat">\uC8FC\uAC04 \uC644\uB8CC: <b>' + data.stats.week_done + '</b></div>';
+          html += '<div class="rpt-stat">\uC989\uC2DC \uBBF8\uC644: <b>' + data.stats.urgent_not_done + '</b></div>';
+        }
+        html += '</div>';
+      }
+      body.innerHTML = html || '<span style="color:var(--text3)">\uB9AC\uD3EC\uD2B8 \uB370\uC774\uD130 \uC5C6\uC74C</span>';
+    }
+  } catch(e) {
+    body.innerHTML = '<span style="color:var(--rose)">\uB9AC\uD3EC\uD2B8 \uB85C\uB4DC \uC2E4\uD328: ' + escapeHtml(e.message) + '</span>';
   }
 }
 
@@ -328,16 +822,16 @@ function switchView(v,el){
 
 function renderDayStrip(){
   const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-  const startDate=17; // Feb 17 = Mon
+  const startDate=17;
   let html='';
   for(let i=0;i<14;i++){
     const d=startDate+i;
     const dayIdx=i%7;
     const isToday=d===TODAY;
     const isCur=i===currentDay;
-    html+=`<div class="d-tab ${isCur?'active':''} ${isToday?'today':''}" onclick="selectDay(${i},this)">${days[dayIdx]} ${d>28?d-28:d}</div>`;
+    html+='<div class="d-tab '+(isCur?'active':'')+' '+(isToday?'today':'')+'" onclick="selectDay('+i+',this)">'+days[dayIdx]+' '+(d>28?d-28:d)+'</div>';
   }
-  html+=`<div class="d-tab" onclick="selectDay(-1,this)">Backlog</div>`;
+  html+='<div class="d-tab" onclick="selectDay(-1,this)">Backlog</div>';
   document.getElementById('dayStrip').innerHTML=html;
 }
 
@@ -360,20 +854,18 @@ function renderTasks(){
     const weekEnd=weekStart+6;
     filtered=TASKS.filter(t=>(t.day>=weekStart&&t.day<=weekEnd)||t.done);
   } else if(currentView==='monthly'){
-    filtered=TASKS.filter(t=>t.pri==='즉시'||t.pri==='단기'||t.done);
+    filtered=TASKS.filter(t=>t.pri==='\uC989\uC2DC'||t.pri==='\uB2E8\uAE30'||t.done);
   } else {
     filtered=TASKS;
   }
 
-  // Group by section
   const groups={};
   filtered.forEach(t=>{
-    const key=t.done?'✅ 완료':(t.sub?`${PRI_LABELS[t.pri]} — ${t.sub}`:PRI_LABELS[t.pri]);
+    const key=t.done?'\u2705 \uC644\uB8CC':(t.sub?(PRI_LABELS[t.pri]+' \u2014 '+t.sub):PRI_LABELS[t.pri]);
     if(!groups[key])groups[key]={items:[],pri:t.pri,done:t.done};
     groups[key].items.push(t);
   });
 
-  // Sort: done last
   const sorted=Object.entries(groups).sort((a,b)=>{
     if(a[1].done&&!b[1].done) return 1;
     if(!a[1].done&&b[1].done) return -1;
@@ -384,50 +876,76 @@ function renderTasks(){
   for(const [key,g] of sorted){
     const doneCount=g.items.filter(t=>t.done).length;
     const color=g.done?'var(--sage)':PRI_COLORS[g.pri]||'var(--text3)';
-    html+=`<div class="t-section">
-      <div class="t-section-head">
-        <div class="t-dot" style="background:${color}"></div>
-        <div class="t-section-title">${key}</div>
-        <div class="t-section-count">${doneCount}/${g.items.length}</div>
-      </div>
-      ${g.items.map(t=>renderTaskItem(t)).join('')}
-    </div>`;
+    html+='<div class="t-section">';
+    html+='<div class="t-section-head">';
+    html+='<div class="t-dot" style="background:'+color+'"></div>';
+    html+='<div class="t-section-title">'+key+'</div>';
+    html+='<div class="t-section-count">'+doneCount+'/'+g.items.length+'</div>';
+    html+='</div>';
+    html+=g.items.map(t=>renderTaskItem(t)).join('');
+    html+='</div>';
   }
 
-  if(!html) html='<div style="padding:40px 20px;text-align:center;color:var(--text3);font-size:13px">이 날에 배정된 태스크가 없습니다</div>';
+  if(!html) html='<div style="padding:40px 20px;text-align:center;color:var(--text3);font-size:13px">\uC774 \uB0A0\uC5D0 \uBC30\uC815\uB41C \uD0DC\uC2A4\uD06C\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4</div>';
   container.innerHTML=html;
 
-  // Re-bind clicks (uses API-backed toggleTask)
+  // Bind checkbox clicks
   container.querySelectorAll('.t-chk').forEach(c=>{
     c.addEventListener('click',e=>{
       e.stopPropagation();
       toggleTask(+c.dataset.id);
     });
   });
+  // Bind edit clicks
+  container.querySelectorAll('.t-edit-btn').forEach(b=>{
+    b.addEventListener('click',e=>{
+      e.stopPropagation();
+      openEditModal(+b.dataset.id);
+    });
+  });
+  // Bind delete clicks
+  container.querySelectorAll('.t-del-btn').forEach(b=>{
+    b.addEventListener('click',e=>{
+      e.stopPropagation();
+      deleteTask(+b.dataset.id);
+    });
+  });
+  // Bind task body click to edit
+  container.querySelectorAll('.t-body').forEach(b=>{
+    b.addEventListener('click',e=>{
+      const item = b.closest('.t-item');
+      const chk = item.querySelector('.t-chk');
+      if (chk) openEditModal(+chk.dataset.id);
+    });
+  });
 }
 
 function renderTaskItem(t){
-  return `<div class="t-item ${t.done?'done':''}">
-    <div class="t-chk ${t.done?'done':''}" data-id="${t.id}"></div>
-    <div class="t-body">
-      <div class="t-name">${t.name}</div>
-      ${t.desc?`<div class="t-desc">${t.desc}</div>`:''}
-      <div class="t-tags">
-        <span class="t-tag ${CAT_STYLES[t.cat]}">${CAT_LABELS[t.cat]}</span>
-        ${t.high||t.highlight?'<span class="t-tag tag-high">높음</span>':''}
-      </div>
-    </div>
-    ${t.dur?`<div class="t-dur">${t.dur}</div>`:''}
-  </div>`;
+  return '<div class="t-item '+(t.done?'done':'')+'">'
+    +'<div class="t-chk '+(t.done?'done':'')+'" data-id="'+t.id+'"></div>'
+    +'<div class="t-body">'
+    +'<div class="t-name">'+escapeHtml(t.name)+'</div>'
+    +(t.desc?'<div class="t-desc">'+escapeHtml(t.desc)+'</div>':'')
+    +'<div class="t-tags">'
+    +'<span class="t-tag '+CAT_STYLES[t.cat]+'">'+(CAT_LABELS[t.cat]||t.cat)+'</span>'
+    +(t.high||t.highlight?'<span class="t-tag tag-high">\uB192\uC74C</span>':'')
+    +'</div></div>'
+    +(t.dur?'<div class="t-dur">'+t.dur+'</div>':'')
+    +'<div class="t-actions">'
+    +'<button class="t-act-btn t-edit-btn" data-id="'+t.id+'" title="\uD3B8\uC9D1">\u270E</button>'
+    +'<button class="t-act-btn del t-del-btn" data-id="'+t.id+'" title="\uC0AD\uC81C">\u2715</button>'
+    +'</div></div>';
 }
 
 function updateInsights(){
   const done=TASKS.filter(t=>t.done).length;
   const total=TASKS.length;
   const pct=total>0?Math.round(done/total*100):0;
+  const urgent=TASKS.filter(t=>t.pri==='\uC989\uC2DC'&&!t.done).length;
   document.getElementById('insPct').textContent=pct+'%';
-  document.getElementById('insDone').textContent=`${done}/${total} 완료`;
-  document.getElementById('leftSub').textContent=`${total} tasks · ${done} done`;
+  document.getElementById('insDone').textContent=done+'/'+total+' \uC644\uB8CC';
+  document.getElementById('insUrgent').textContent=urgent;
+  document.getElementById('leftSub').textContent=total+' tasks \u00B7 '+done+' done';
 }
 
 // ===== WEEK GRID =====
@@ -439,15 +957,15 @@ function renderWeekGrid(){
     const d=startDate+i;
     const isToday=d===TODAY;
     const dayTasks=TASKS.filter(t=>t.day===i+1&&!t.done);
-    html+=`<div class="wk-day ${isToday?'today':''}">
-      <div class="wk-label">${days[i]}<span>${d}</span></div>
-      ${dayTasks.slice(0,3).map(t=>{
-        const bg=t.cat==='content'?'var(--rose-bg)':t.cat==='auto'?'var(--slate-bg)':t.cat==='growth'?'var(--lavender-bg)':'var(--sage-bg)';
-        const fg=t.cat==='content'?'var(--rose)':t.cat==='auto'?'var(--slate)':t.cat==='growth'?'var(--lavender)':'var(--sage)';
-        return `<div class="wk-task" style="background:${bg};color:${fg}">${t.name.substring(0,12)}${t.name.length>12?'…':''}</div>`;
-      }).join('')}
-      ${dayTasks.length>3?`<div style="font-size:8px;color:var(--text3)">+${dayTasks.length-3} more</div>`:''}
-    </div>`;
+    html+='<div class="wk-day '+(isToday?'today':'')+'">';
+    html+='<div class="wk-label">'+days[i]+'<span>'+d+'</span></div>';
+    html+=dayTasks.slice(0,3).map(t=>{
+      const bg=t.cat==='content'?'var(--rose-bg)':t.cat==='auto'?'var(--slate-bg)':t.cat==='growth'?'var(--lavender-bg)':'var(--sage-bg)';
+      const fg=t.cat==='content'?'var(--rose)':t.cat==='auto'?'var(--slate)':t.cat==='growth'?'var(--lavender)':'var(--sage)';
+      return '<div class="wk-task" style="background:'+bg+';color:'+fg+'">'+escapeHtml(t.name.substring(0,12))+(t.name.length>12?'\u2026':'')+'</div>';
+    }).join('');
+    if(dayTasks.length>3) html+='<div style="font-size:8px;color:var(--text3)">+'+(dayTasks.length-3)+' more</div>';
+    html+='</div>';
   }
   document.getElementById('weekGrid').innerHTML=html;
 }
@@ -455,13 +973,11 @@ function renderWeekGrid(){
 // ===== MONTHLY CALENDAR =====
 function renderCalendar(){
   const headers=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-  let html=headers.map(h=>`<div class="cal-header">${h}</div>`).join('');
+  let html=headers.map(h=>'<div class="cal-header">'+h+'</div>').join('');
 
-  // Feb 2026 starts on Sunday → offset 6 (Mon-based)
   const offset=6;
-  for(let i=0;i<offset;i++) html+=`<div class="cal-cell empty"></div>`;
+  for(let i=0;i<offset;i++) html+='<div class="cal-cell empty"></div>';
 
-  // Count done tasks by day (from done_at field)
   const doneCounts={};
   TASKS.forEach(t=>{
     if(t.done && t.done_at){
@@ -483,10 +999,26 @@ function renderCalendar(){
     }
     if(isToday) cls+=' today-cell';
     const dot=count>0?'<div class="cal-dot"></div>':'';
-    html+=`<div class="cal-cell ${cls}">${d}${dot}</div>`;
+    html+='<div class="cal-cell '+cls+'">'+d+dot+'</div>';
   }
   document.getElementById('calGrid').innerHTML=html;
 }
+
+// ===== UTILS =====
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// Close modals on overlay click
+document.getElementById('taskModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeModal(); });
+document.getElementById('bdModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeBdModal(); });
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if(e.key==='Escape') { closeModal(); closeBdModal(); }
+});
 
 init();
 </script>
