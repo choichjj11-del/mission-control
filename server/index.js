@@ -35,8 +35,8 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Start server
-app.listen(config.PORT, () => {
+// Start server (bind to 0.0.0.0 for IPv4 access)
+app.listen(config.PORT, '0.0.0.0', () => {
   console.log(`\n🚀 Mission Control API running on port ${config.PORT}`);
   console.log(`   Dashboard: http://localhost:${config.PORT}`);
   console.log(`   API:       http://localhost:${config.PORT}/api/tasks`);
