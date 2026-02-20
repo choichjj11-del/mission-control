@@ -30,9 +30,12 @@ body{background:var(--bg);color:var(--text);font-family:'Karla',sans-serif;font-
 .greeting{font-size:11px;color:var(--text3)}
 .l-title{font-family:'Crimson Pro',serif;font-size:24px;font-weight:600;margin-top:2px}
 .l-sub{font-size:11px;color:var(--text3);margin-top:2px}
-.header-voice-btn{width:34px;height:34px;border-radius:50%;border:2px solid var(--border);background:var(--surface);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:15px;color:var(--text3);flex-shrink:0}
-.header-voice-btn:hover{border-color:var(--warm);color:var(--warm);transform:scale(1.05)}
-.header-voice-btn.recording{border-color:var(--rose);background:var(--rose-bg);color:var(--rose);animation:pulse 1.2s infinite}
+.header-voice-btn{width:40px;height:40px;border-radius:50%;border:2px solid var(--warm);background:var(--warm-bg);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+.header-voice-btn svg{width:18px;height:18px;fill:var(--warm)}
+.header-voice-btn:hover{background:var(--warm);border-color:var(--warm);transform:scale(1.08);box-shadow:0 2px 12px rgba(196,149,106,.3)}
+.header-voice-btn:hover svg{fill:#fff}
+.header-voice-btn.recording{border-color:var(--rose);background:var(--rose);animation:pulse 1.2s infinite}
+.header-voice-btn.recording svg{fill:#fff}
 
 /* VIEW SWITCHER */
 .view-switch{display:flex;gap:0;margin:14px 20px 0;border:1px solid var(--border);border-radius:8px;overflow:hidden;flex-shrink:0}
@@ -285,7 +288,9 @@ body{background:var(--bg);color:var(--text);font-family:'Karla',sans-serif;font-
         <div class="l-title">Mission Control</div>
         <div class="l-sub" id="leftSub">38 tasks &middot; 2 done</div>
       </div>
-      <button class="header-voice-btn" id="headerVoiceBtn" onclick="startTodoVoice()" title="음성으로 할 일 등록">🎙</button>
+      <button class="header-voice-btn" id="headerVoiceBtn" onclick="startTodoVoice()" title="음성으로 할 일 등록">
+        <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V5zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
+      </button>
     </div>
   </div>
 
