@@ -1,0 +1,19 @@
+{
+  "name": "mission-control-api",
+  "version": "1.0.0",
+  "description": "Mission Control API — AI-powered task manager backend",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.0",
+    "multer": "^1.4.5-lts.1",
+    "node-cron": "^3.0.3",
+    "node-fetch": "^2.7.0",
+    "form-data": "^4.0.0",
+    "uuid": "^9.0.0"
+  }
+}
