@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#faf9f7">
+<title>Mission Control — Today</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #faf9f7;
+  --bg2: #f2f0ed;
+  --surface: #ffffff;
+  --border: #eae7e2;
+  --text: #1a1a1a;
+  --text2: #6b6b6b;
+  --text3: #a0a0a0;
+  --accent: #ff6b35;
+  --accent2: #e55a28;
+  --accent-bg: rgba(255,107,53,.08);
+  --accent-bg2: rgba(255,107,53,.15);
+  --green: #22c55e;
+  --green-bg: rgba(34,197,94,.08);
+  --green2: #16a34a;
+  --red: #ef4444;
+  --blue: #3b82f6;
+  --purple: #8b5cf6;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --radius: 16px;
+  --radius-sm: 12px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { height:100%; }
+body {
+  font-family:'Inter',system-ui,-apple-system,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  height:100%;
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+  -webkit-text-size-adjust:100%;
+}
+
+.app {
+  display:flex;
+  flex-direction:column;
+  height:100%;
+  height:100dvh;
+}
+
+/* ===== HEADER ===== */
+.header {
+  flex-shrink:0;
+  padding:16px 20px 0;
+  padding-top:calc(16px + var(--safe-top));
+}
+.h-top {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:2px;
+}
+.h-greeting {
+  font-size:13px;
+  color:var(--text3);
+  font-weight:500;
+}
+.h-date {
+  font-size:13px;
+  color:var(--text3);
+  font-weight:600;
+}
+.h-title {
+  font-size:28px;
+  font-weight:800;
+  letter-spacing:-1px;
+  line-height:1.2;
+  margin-bottom:14px;
+}
+
+/* ===== PROGRESS ===== */
+.progress {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:14px 16px;
+  margin:0 20px 6px;
+  flex-shrink:0;
+}
+.prog-top {
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  margin-bottom:8px;
+}
+.prog-label {
+  font-size:12px;
+  font-weight:600;
+  color:var(--text2);
+}
+.prog-nums {
+  font-size:12px;
+  font-weight:700;
+  color:var(--accent);
+}
+.prog-bar {
+  height:8px;
+  background:var(--bg2);
+  border-radius:4px;
+  overflow:hidden;
+}
+.prog-fill {
+  height:100%;
+  border-radius:4px;
+  background:linear-gradient(90deg,var(--accent),#ff8f00);
+  transition:width .5s cubic-bezier(.4,0,.2,1);
+}
+
+/* ===== TAB NAV ===== */
+.tabs {
+  display:flex;
+  gap:0;
+  margin:10px 20px 0;
+  flex-shrink:0;
+}
+.tab {
+  flex:1;
+  text-align:center;
+  padding:10px 0;
+  font-size:13px;
+  font-weight:600;
+  color:var(--text3);
+  cursor:pointer;
+  border-bottom:2.5px solid transparent;
+  transition:all .15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.tab.active {
+  color:var(--accent);
+  border-bottom-color:var(--accent);
+}
+
+/* ===== SCROLL AREA ===== */
+.scroll {
+  flex:1;
+  overflow-y:auto;
+  overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior-y:contain;
+}
+.scroll-pad {
+  padding:16px 20px calc(20px + var(--safe-bottom));
+}
+
+/* ===== FOCUS CARD ===== */
+.focus {
+  background:var(--surface);
+  border:2px solid var(--accent);
+  border-radius:var(--radius);
+  padding:20px;
+  margin-bottom:16px;
+  position:relative;
+  overflow:hidden;
+  box-shadow:0 4px 24px rgba(255,107,53,.08);
+}
+.focus::before {
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;
+  height:4px;
+  background:linear-gradient(90deg,var(--accent),#ff8f00);
+}
+.focus-label {
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  font-size:11px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.8px;
+  color:var(--accent);
+  margin-bottom:10px;
+}
+.focus-pulse {
+  width:6px;height:6px;border-radius:50%;background:var(--accent);
+  animation:pulse 2s infinite;
+}
+@keyframes pulse {
+  0%,100%{opacity:1;transform:scale(1)}
+  50%{opacity:.4;transform:scale(1.5)}
+}
+.focus-name {
+  font-size:20px;
+  font-weight:700;
+  line-height:1.35;
+  letter-spacing:-.3px;
+  margin-bottom:6px;
+}
+.focus-desc {
+  font-size:13px;
+  color:var(--text2);
+  line-height:1.5;
+  margin-bottom:14px;
+}
+.focus-footer {
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.focus-time {
+  font-size:12px;
+  font-weight:600;
+  color:var(--text3);
+  background:var(--bg2);
+  padding:4px 10px;
+  border-radius:8px;
+}
+.focus-cat {
+  font-size:10px;
+  font-weight:700;
+  padding:3px 10px;
+  border-radius:8px;
+  letter-spacing:.3px;
+}
+.cat-content { background:var(--accent-bg); color:var(--accent); }
+.cat-auto { background:rgba(59,130,246,.08); color:var(--blue); }
+.cat-growth { background:rgba(139,92,246,.08); color:var(--purple); }
+.cat-infra { background:var(--green-bg); color:var(--green2); }
+
+.focus-start {
+  margin-left:auto;
+  padding:10px 22px;
+  border-radius:12px;
+  border:none;
+  background:var(--accent);
+  color:#fff;
+  font-family:inherit;
+  font-size:14px;
+  font-weight:700;
+  cursor:pointer;
+  transition:all .15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.focus-start:active {
+  transform:scale(.96);
+  background:var(--accent2);
+}
+
+/* ===== DONE CARD (replaces focus on complete) ===== */
+.focus.completed {
+  border-color:var(--green);
+  box-shadow:0 4px 24px rgba(34,197,94,.1);
+}
+.focus.completed::before {
+  background:var(--green);
+}
+.focus.completed .focus-label { color:var(--green); }
+.focus.completed .focus-pulse { background:var(--green); animation:none; }
+.focus.completed .focus-name {
+  text-decoration:line-through;
+  color:var(--text3);
+}
+
+/* ===== REMAINING LIST ===== */
+.remaining-head {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:10px;
+}
+.remaining-title {
+  font-size:13px;
+  font-weight:700;
+  color:var(--text2);
+}
+.remaining-count {
+  font-size:12px;
+  font-weight:600;
+  color:var(--text3);
+}
+
+.task-item {
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:14px 16px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  margin-bottom:6px;
+  cursor:pointer;
+  transition:all .15s;
+  -webkit-tap-highlight-color:transparent;
+  animation:slideUp .25s ease both;
+}
+.task-item:active {
+  background:var(--accent-bg);
+  border-color:var(--accent);
+  transform:scale(.98);
+}
+.task-item.done {
+  opacity:.3;
+}
+.task-item.done .task-item-name {
+  text-decoration:line-through;
+  color:var(--text3);
+}
+
+@keyframes slideUp {
+  from { opacity:0; transform:translateY(12px); }
+  to { opacity:1; transform:translateY(0); }
+}
+
+.chk {
+  width:26px;
+  height:26px;
+  border-radius:50%;
+  border:2.5px solid var(--border);
+  flex-shrink:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:all .2s cubic-bezier(.4,0,.2,1);
+}
+.chk.done {
+  background:var(--green);
+  border-color:var(--green);
+  animation:checkPop .35s cubic-bezier(.4,0,.2,1);
+}
+.chk.done::after {
+  content:'\2713';
+  color:#fff;
+  font-size:13px;
+  font-weight:700;
+}
+@keyframes checkPop {
+  0% { transform:scale(1); }
+  40% { transform:scale(1.3); }
+  100% { transform:scale(1); }
+}
+
+.task-item-body { flex:1; min-width:0; }
+.task-item-name {
+  font-size:14px;
+  font-weight:600;
+  line-height:1.4;
+}
+.task-item-sub {
+  font-size:11px;
+  color:var(--text3);
+  margin-top:1px;
+}
+.task-item-time {
+  font-size:11px;
+  font-weight:600;
+  color:var(--text3);
+  background:var(--bg2);
+  padding:3px 8px;
+  border-radius:6px;
+  flex-shrink:0;
+}
+
+/* ===== ALL TASKS VIEW ===== */
+.pri-group { margin-bottom:10px; }
+.pri-head {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:4px 0 8px;
+}
+.pri-dot {
+  width:8px;
+  height:8px;
+  border-radius:2px;
+}
+.pri-label {
+  font-size:11px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.8px;
+  color:var(--text3);
+}
+.pri-num {
+  margin-left:auto;
+  font-size:11px;
+  color:var(--text3);
+  font-weight:600;
+}
+
+/* ===== DASHBOARD VIEW ===== */
+.dash-section { margin-bottom:20px; }
+.dash-label {
+  font-size:11px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.8px;
+  color:var(--text3);
+  margin-bottom:10px;
+}
+.stat-grid {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.stat-card {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:16px;
+}
+.stat-val {
+  font-size:28px;
+  font-weight:800;
+  letter-spacing:-1px;
+  line-height:1;
+}
+.stat-label {
+  font-size:11px;
+  color:var(--text3);
+  font-weight:500;
+  margin-top:4px;
+}
+
+.obj-card {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:14px 16px;
+  margin-bottom:6px;
+}
+.obj-top {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:6px;
+}
+.obj-name { font-size:14px; font-weight:700; }
+.obj-pct { font-size:12px; font-weight:700; color:var(--accent); }
+.obj-desc { font-size:12px; color:var(--text2); line-height:1.5; margin-bottom:8px; }
+.obj-bar { height:4px; background:var(--bg2); border-radius:2px; overflow:hidden; }
+.obj-fill { height:100%; border-radius:2px; }
+
+/* ===== CELEBRATION ===== */
+.confetti-container {
+  position:fixed;
+  top:0;left:0;right:0;bottom:0;
+  pointer-events:none;
+  z-index:9999;
+  overflow:hidden;
+}
+.confetti {
+  position:absolute;
+  width:8px;
+  height:8px;
+  border-radius:1px;
+  top:-10px;
+  animation:confettiFall 1.2s ease-in forwards;
+}
+@keyframes confettiFall {
+  0% { transform:translateY(0) rotate(0deg); opacity:1; }
+  100% { transform:translateY(100vh) rotate(720deg); opacity:0; }
+}
+
+/* ===== TOAST ===== */
+.toast {
+  position:fixed;
+  top:calc(20px + var(--safe-top));
+  left:20px;right:20px;
+  z-index:2000;
+  padding:14px 18px;
+  border-radius:var(--radius-sm);
+  font-size:14px;
+  font-weight:700;
+  text-align:center;
+  color:#fff;
+  background:var(--green);
+  box-shadow:0 8px 32px rgba(34,197,94,.25);
+  transform:translateY(-120px);
+  opacity:0;
+  transition:all .35s cubic-bezier(.4,0,.2,1);
+  pointer-events:none;
+}
+.toast.show { transform:translateY(0); opacity:1; }
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar { width:0; height:0; }
+
+/* ===== DESKTOP ===== */
+@media (min-width:769px) {
+  .app { flex-direction:row; align-items:stretch; }
+  .panel-left {
+    width:480px;
+    min-width:420px;
+    display:flex;
+    flex-direction:column;
+    border-right:1px solid var(--border);
+    background:var(--surface);
+  }
+  .panel-right {
+    flex:1;
+    overflow-y:auto;
+    padding:24px 32px;
+    display:block !important;
+  }
+  .tabs { display:none; }
+  .stat-grid { grid-template-columns:repeat(4,1fr); }
+}
+@media (max-width:768px) {
+  .panel-left { width:100%; }
+  .panel-right { display:none; }
+  .panel-right.active { display:block; }
+  .panel-left.hidden { display:none; }
+}
+@media (max-width:375px) {
+  .h-title { font-size:24px; }
+  .focus { padding:16px; }
+  .focus-name { font-size:18px; }
+  .task-item { padding:12px 14px; gap:12px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- Desktop: left panel -->
+<div class="panel-left" id="panelLeft">
+
+<div class="header">
+  <div class="h-top">
+    <div class="h-greeting" id="greeting">Good evening, Brian</div>
+    <div class="h-date" id="dateText"></div>
+  </div>
+  <div class="h-title">Today</div>
+</div>
+
+<div class="progress">
+  <div class="prog-top">
+    <div class="prog-label">Today's progress</div>
+    <div class="prog-nums" id="progNums">0 / 3</div>
+  </div>
+  <div class="prog-bar">
+    <div class="prog-fill" id="progFill" style="width:0%"></div>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('today',this)">Today</div>
+  <div class="tab" onclick="switchTab('all',this)">All Tasks</div>
+  <div class="tab" onclick="switchTab('dash',this)">Dashboard</div>
+</div>
+
+<!-- TODAY VIEW -->
+<div class="scroll" id="viewToday">
+  <div class="scroll-pad">
+    <div id="focusCard"></div>
+    <div id="remainingList"></div>
+  </div>
+</div>
+
+<!-- ALL TASKS VIEW -->
+<div class="scroll" id="viewAll" style="display:none">
+  <div class="scroll-pad" id="allTasksList"></div>
+</div>
+
+<!-- DASHBOARD VIEW (mobile) -->
+<div class="scroll" id="viewDash" style="display:none">
+  <div class="scroll-pad" id="dashContent"></div>
+</div>
+
+</div>
+
+<!-- Desktop: right panel (always dashboard) -->
+<div class="panel-right" id="panelRight">
+  <div id="dashDesktop"></div>
+</div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="confetti-container" id="confetti"></div>
+
+<script>
+// ===== DATA =====
+const ALL_TASKS=[
+  {id:1,name:"트렌딩 뮤직 90%+ 적용",desc:"현재 52% → 에디츠 앱에서 수동 적용",cat:"content",pri:"즉시",sub:"갓템홈 개선",day:1,dur:15,tags:[]},
+  {id:2,name:"포스팅 빈도 조절",desc:"인스타 1개(베스트), 나머지 분산",cat:"content",pri:"즉시",sub:"갓템홈 개선",day:1,dur:null,tags:[]},
+  {id:3,name:"영상 길이 24~26초로",desc:"Top3 평균 25.6초, 비포/애프터 추가",cat:"content",pri:"즉시",sub:"갓템홈 개선",day:2,dur:null,tags:[]},
+  {id:4,name:"hehe_home_tem 벤치마킹",desc:"1/2/1/2 패턴, 썸네일 고정",cat:"content",pri:"즉시",sub:"갓템홈 개선",day:2,dur:30,tags:[]},
+  {id:5,name:"뷰티 카테고리 테스트",desc:"경쟁채널 뷰티 평균 24.3만회",cat:"growth",pri:"즉시",sub:"갓템홈 개선",day:3,dur:45,tags:["highlight"]},
+  {id:6,name:"캡션 hook 강화",desc:"\"연예인이 극찬한\" 패턴",cat:"content",pri:"즉시",sub:"갓템홈 개선",day:3,dur:20,tags:[]},
+  {id:7,name:"ManyChat + n8n 구축",desc:"포스트별 다른 링크 자동 매핑",cat:"auto",pri:"즉시",sub:"ManyChat 자동화",day:4,dur:120,tags:[]},
+  {id:8,name:"n8n 포스트ID 매핑",desc:"Plann 예약 시 n8n DB 등록",cat:"auto",pri:"즉시",sub:"ManyChat 자동화",day:4,dur:60,tags:[]},
+  {id:9,name:"ManyChat Pro 결제",desc:"기존 계정 찾기 or 새로 결제",cat:"infra",pri:"즉시",sub:"ManyChat 자동화",day:5,dur:30,tags:[]},
+  {id:10,name:"다국어 자막/음성 입히기",desc:"기존 영상 활용",cat:"content",pri:"단기",sub:"다국어 확장",day:8,dur:120,tags:[]},
+  {id:11,name:"테스트 언어 우선순위",desc:"영어, 일본어, 베트남어, 스페인어",cat:"growth",pri:"단기",sub:"다국어 확장",day:8,dur:30,tags:[]},
+  {id:12,name:"다국어 파이프라인 설계",desc:"ElevenLabs TTS → 자막 교체",cat:"auto",pri:"단기",sub:"다국어 확장",day:9,dur:180,tags:[]},
+  {id:13,name:"언어별 계정 생성",desc:"godtem.home.en / .jp / .vn",cat:"infra",pri:"단기",sub:"다국어 확장",day:10,dur:60,tags:[]},
+  {id:14,name:"파일럿 10개 영상",desc:"2주 돌려보고 반응 측정",cat:"growth",pri:"단기",sub:"다국어 확장",day:11,dur:240,tags:[]},
+  {id:15,name:"채널 카테고리 다양화",desc:"뷰티템, 키친템, 가젯 등",cat:"growth",pri:"단기",sub:"멀티채널",day:12,dur:null,tags:[]},
+  {id:16,name:"세컨 계정 전략",desc:"같은 소스 다른 니치",cat:"growth",pri:"단기",sub:"멀티채널",day:12,dur:null,tags:[]},
+  {id:17,name:"플랫폼 분산 전략",desc:"인스타+틱톡+네이버클립+페북",cat:"content",pri:"단기",sub:"멀티채널",day:13,dur:null,tags:[]},
+  {id:18,name:"어필리에이트 연결",desc:"인포크→쿠팡, 해외→아마존",cat:"growth",pri:"단기",sub:"멀티채널",day:14,dur:null,tags:[]},
+  {id:19,name:"아마존/월마트 어필리에이트",desc:"같은 제품 글로벌 수익",cat:"growth",pri:"단기",sub:"멀티채널",day:14,dur:null,tags:[]},
+  {id:20,name:"인포크 셀레니움 배포",desc:"개발 완료, 배포+크론",cat:"infra",pri:"단기",sub:"인프라",day:null,dur:null,tags:[],done:true},
+  {id:21,name:"데일리 매니저 봇 검증",desc:"3일 써보고 피드백",cat:"infra",pri:"단기",sub:"인프라",day:null,dur:null,tags:[],done:true},
+  {id:22,name:"n8n 프롬프트 최적화",desc:"Top10 패턴 → 동적 프롬프트",cat:"auto",pri:"단기",sub:"인프라",day:6,dur:null,tags:[]},
+  {id:23,name:"네이버 클립 업로드",desc:"밀린 것 처리",cat:"content",pri:"단기",sub:"인프라",day:6,dur:null,tags:[]},
+  {id:24,name:"인포크 수동 업로드",desc:"밀린 것 처리",cat:"content",pri:"단기",sub:"인프라",day:7,dur:null,tags:[]},
+  {id:25,name:"2주 테스트 후 재측정",desc:"평균재생 15K+ 목표",cat:"growth",pri:"중기",sub:"",day:null,dur:null,tags:["high"]},
+  {id:26,name:"다국어 파일럿 분석",desc:"ROI 판단",cat:"growth",pri:"중기",sub:"",day:null,dur:null,tags:["high"]},
+  {id:27,name:"1% Growth 롱폼",desc:"첫 영상 주제 확정",cat:"content",pri:"중기",sub:"",day:null,dur:null,tags:[]},
+  {id:28,name:"디지털 상품 제작",desc:"포모도로, 노션 템플릿",cat:"growth",pri:"중기",sub:"",day:null,dur:null,tags:[]},
+  {id:29,name:"어필리에이트 퍼널",desc:"리드마그넷 → 쿠팡 → 컨설팅",cat:"growth",pri:"중기",sub:"",day:null,dur:null,tags:[]},
+  {id:30,name:"알람 앱 MVP",desc:"React Native",cat:"infra",pri:"중기",sub:"",day:null,dur:null,tags:[]},
+  {id:31,name:"UGC 인플루언서 육성",desc:"에이전트 브리핑",cat:"growth",pri:"중기",sub:"",day:null,dur:null,tags:[]},
+  {id:32,name:"OpenClaw 자율에이전트",desc:"트렌드 자동화",cat:"auto",pri:"중기",sub:"",day:null,dur:null,tags:[]},
+  {id:33,name:"AI UGC 자동화",desc:"Arcads+ElevenLabs+Kling",cat:"auto",pri:"장기",sub:"",day:null,dur:null,tags:[]},
+  {id:34,name:"얼굴 스왑 자동화",desc:"Midjourney V7+FaceFusion",cat:"auto",pri:"장기",sub:"",day:null,dur:null,tags:[]},
+  {id:35,name:"AI 아바타 멀티채널",desc:"일관된 캐릭터",cat:"auto",pri:"장기",sub:"",day:null,dur:null,tags:[]},
+  {id:36,name:"네이버 블로그 자동화",desc:"네이버 오픈 API",cat:"auto",pri:"장기",sub:"",day:null,dur:null,tags:[]},
+  {id:37,name:"네이버 클립 자동화",desc:"셀레니움",cat:"auto",pri:"장기",sub:"",day:null,dur:null,tags:[]},
+  {id:38,name:"다국어 풀스케일 확장",desc:"5개 언어+ 동시 운영",cat:"growth",pri:"장기",sub:"",day:null,dur:null,tags:[]}
+];
+
+// ===== STATE =====
+let doneIds=JSON.parse(localStorage.getItem('mc2_done')||'[]');
+let currentTab='today';
+const TODAY_DAY=3; // simulate day 3 tasks
+const TODAY=new Date().getDate();
+const CAT_CLASS={content:'cat-content',auto:'cat-auto',growth:'cat-growth',infra:'cat-infra'};
+const CAT_LABEL={content:'Content',auto:'Auto',growth:'Growth',infra:'Infra'};
+const PRI_COLOR={'즉시':'var(--red)','단기':'var(--accent)','중기':'var(--blue)','장기':'var(--text3)'};
+
+function isDone(id){return doneIds.includes(id)||ALL_TASKS.find(t=>t.id===id)?.done;}
+function todayTasks(){return ALL_TASKS.filter(t=>t.day===TODAY_DAY&&!ALL_TASKS.find(x=>x.id===t.id)?.done);}
+
+// ===== TOGGLE =====
+function toggle(id){
+  if(ALL_TASKS.find(t=>t.id===id)?.done) return;
+  const i=doneIds.indexOf(id);
+  if(i>=0) doneIds.splice(i,1); else doneIds.push(id);
+  localStorage.setItem('mc2_done',JSON.stringify(doneIds));
+  render();
+  if(isDone(id)){
+    showToast('Done! Keep going');
+    popConfetti();
+  } else {
+    showToast('Restored');
+  }
+}
+
+function completeFocus(){
+  const tasks=todayTasks().filter(t=>!isDone(t.id));
+  if(tasks.length>0) toggle(tasks[0].id);
+}
+
+// ===== TAB =====
+function switchTab(tab,el){
+  currentTab=tab;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  if(el) el.classList.add('active');
+  document.getElementById('viewToday').style.display=tab==='today'?'':'none';
+  document.getElementById('viewAll').style.display=tab==='all'?'':'none';
+  document.getElementById('viewDash').style.display=tab==='dash'?'':'none';
+  // Mobile panel switching
+  if(window.innerWidth<=768){
+    document.getElementById('panelLeft').classList.toggle('hidden',tab==='dash');
+    document.getElementById('panelRight').classList.toggle('active',tab==='dash');
+  }
+  if(tab==='all') renderAllTasks();
+  if(tab==='dash') renderDash(document.getElementById('dashContent'));
+}
+
+// ===== RENDER =====
+function render(){
+  renderFocus();
+  renderRemaining();
+  updateProgress();
+  renderDash(document.getElementById('dashDesktop'));
+}
+
+function renderFocus(){
+  const tasks=todayTasks().filter(t=>!isDone(t.id));
+  const done=todayTasks().filter(t=>isDone(t.id));
+  const el=document.getElementById('focusCard');
+
+  if(tasks.length===0 && done.length>0){
+    el.innerHTML='<div class="focus completed"><div class="focus-label"><div class="focus-pulse"></div>ALL DONE</div>'
+      +'<div class="focus-name" style="text-decoration:none;color:var(--green)">Today\'s tasks complete!</div>'
+      +'<div class="focus-desc">'+done.length+' tasks crushed. Nice work, Brian.</div></div>';
+    return;
+  }
+  if(tasks.length===0){
+    el.innerHTML='<div class="focus" style="border-color:var(--border);box-shadow:none"><div class="focus-label" style="color:var(--text3)">NO TASKS TODAY</div>'
+      +'<div class="focus-name" style="font-size:16px;color:var(--text2)">Nothing scheduled for today</div></div>';
+    return;
+  }
+
+  const t=tasks[0];
+  const dur=t.dur?(t.dur>=60?Math.round(t.dur/60)+'h':t.dur+'min'):'';
+  el.innerHTML='<div class="focus">'
+    +'<div class="focus-label"><div class="focus-pulse"></div>FOCUS NOW</div>'
+    +'<div class="focus-name">'+esc(t.name)+'</div>'
+    +(t.desc?'<div class="focus-desc">'+esc(t.desc)+'</div>':'')
+    +'<div class="focus-footer">'
+    +(dur?'<div class="focus-time">'+dur+'</div>':'')
+    +'<div class="focus-cat '+CAT_CLASS[t.cat]+'">'+(CAT_LABEL[t.cat]||t.cat)+'</div>'
+    +'<button class="focus-start" onclick="completeFocus()">Done ✓</button>'
+    +'</div></div>';
+}
+
+function renderRemaining(){
+  const tasks=todayTasks();
+  const remaining=tasks.filter(t=>!isDone(t.id)).slice(1);
+  const done=tasks.filter(t=>isDone(t.id));
+  const el=document.getElementById('remainingList');
+
+  let h='';
+  if(remaining.length>0){
+    h+='<div class="remaining-head"><div class="remaining-title">Up next</div><div class="remaining-count">'+remaining.length+' left</div></div>';
+    remaining.forEach((t,i)=>{
+      const dur=t.dur?(t.dur>=60?Math.round(t.dur/60)+'h':t.dur+'m'):'';
+      h+=taskItemHTML(t,i,dur,false);
+    });
+  }
+  if(done.length>0){
+    h+='<div class="remaining-head" style="margin-top:16px"><div class="remaining-title">Completed</div><div class="remaining-count">'+done.length+'</div></div>';
+    done.forEach((t,i)=>{
+      h+=taskItemHTML(t,i,'',true);
+    });
+  }
+  el.innerHTML=h;
+}
+
+function taskItemHTML(t,i,dur,done){
+  return '<div class="task-item '+(done?'done':'')+'" style="animation-delay:'+(i*.04)+'s" onclick="toggle('+t.id+')">'
+    +'<div class="chk '+(done?'done':'')+'"></div>'
+    +'<div class="task-item-body">'
+    +'<div class="task-item-name">'+esc(t.name)+'</div>'
+    +(t.sub?'<div class="task-item-sub">'+esc(t.sub)+'</div>':'')
+    +'</div>'
+    +(dur?'<div class="task-item-time">'+dur+'</div>':'')
+    +'</div>';
+}
+
+function updateProgress(){
+  const tasks=todayTasks();
+  const done=tasks.filter(t=>isDone(t.id)).length;
+  const total=tasks.length;
+  const pct=total>0?Math.round(done/total*100):0;
+  document.getElementById('progNums').textContent=done+' / '+total;
+  document.getElementById('progFill').style.width=pct+'%';
+}
+
+function renderAllTasks(){
+  const groups={'즉시':[],'단기':[],'중기':[],'장기':[]};
+  ALL_TASKS.forEach(t=>{
+    const list=groups[t.pri];
+    if(list) list.push({...t,done:isDone(t.id)});
+  });
+  const labels={'즉시':'Urgent','단기':'Short-term','중기':'Mid-term','장기':'Long-term'};
+  let h='';
+  for(const [pri,items] of Object.entries(groups)){
+    if(items.length===0) continue;
+    const dc=items.filter(t=>t.done).length;
+    h+='<div class="pri-group"><div class="pri-head">';
+    h+='<div class="pri-dot" style="background:'+PRI_COLOR[pri]+'"></div>';
+    h+='<div class="pri-label">'+labels[pri]+'</div>';
+    h+='<div class="pri-num">'+dc+'/'+items.length+'</div></div>';
+    items.forEach((t,i)=>{
+      const dur=t.dur?(t.dur>=60?Math.round(t.dur/60)+'h':t.dur+'m'):'';
+      h+=taskItemHTML(t,i,dur,t.done);
+    });
+    h+='</div>';
+  }
+  document.getElementById('allTasksList').innerHTML=h;
+}
+
+function renderDash(container){
+  if(!container) return;
+  const done=ALL_TASKS.filter(t=>isDone(t.id)).length;
+  const total=ALL_TASKS.length;
+  const pct=Math.round(done/total*100);
+  const urgent=ALL_TASKS.filter(t=>t.pri==='즉시'&&!isDone(t.id)).length;
+  const cats={content:0,auto:0,growth:0,infra:0};
+  const catDone={content:0,auto:0,growth:0,infra:0};
+  ALL_TASKS.forEach(t=>{cats[t.cat]++;if(isDone(t.id))catDone[t.cat]++;});
+
+  let h='<div class="dash-section"><div class="dash-label">Overview</div><div class="stat-grid">';
+  h+='<div class="stat-card"><div class="stat-val" style="color:var(--accent)">'+pct+'%</div><div class="stat-label">Overall progress</div></div>';
+  h+='<div class="stat-card"><div class="stat-val" style="color:var(--red)">'+urgent+'</div><div class="stat-label">Urgent remaining</div></div>';
+  h+='<div class="stat-card"><div class="stat-val" style="color:var(--green)">'+done+'</div><div class="stat-label">Completed</div></div>';
+  h+='<div class="stat-card"><div class="stat-val">'+total+'</div><div class="stat-label">Total tasks</div></div>';
+  h+='</div></div>';
+
+  h+='<div class="dash-section"><div class="dash-label">By Category</div><div class="stat-grid">';
+  const catNames={content:'Content',auto:'Automation',growth:'Growth',infra:'Infra'};
+  const catColors={content:'var(--accent)',auto:'var(--blue)',growth:'var(--purple)',infra:'var(--green)'};
+  for(const c of ['content','auto','growth','infra']){
+    const p=cats[c]>0?Math.round(catDone[c]/cats[c]*100):0;
+    h+='<div class="stat-card"><div class="stat-val" style="color:'+catColors[c]+'">'+catDone[c]+'/'+cats[c]+'</div><div class="stat-label">'+catNames[c]+'</div></div>';
+  }
+  h+='</div></div>';
+
+  h+='<div class="dash-section"><div class="dash-label">Objectives</div>';
+  h+='<div class="obj-card"><div class="obj-top"><div class="obj-name">Monthly 10M KRW</div><div class="obj-pct">0%</div></div><div class="obj-desc">Coupang Partners + Global Affiliate</div><div class="obj-bar"><div class="obj-fill" style="width:0%;background:var(--accent)"></div></div></div>';
+  h+='<div class="obj-card"><div class="obj-top"><div class="obj-name">Avg Views 15K+</div><div class="obj-pct">0%</div></div><div class="obj-desc">Trending music · Posting frequency · Video length</div><div class="obj-bar"><div class="obj-fill" style="width:0%;background:var(--green)"></div></div></div>';
+  h+='<div class="obj-card"><div class="obj-top"><div class="obj-name">Multi-lang Pilot</div><div class="obj-pct">0%</div></div><div class="obj-desc">EN/JP 10 videos · ElevenLabs TTS</div><div class="obj-bar"><div class="obj-fill" style="width:0%;background:var(--blue)"></div></div></div>';
+  h+='</div>';
+
+  container.innerHTML=h;
+}
+
+// ===== CONFETTI =====
+function popConfetti(){
+  const c=document.getElementById('confetti');
+  const colors=['#ff6b35','#22c55e','#3b82f6','#8b5cf6','#f59e0b','#ef4444'];
+  for(let i=0;i<24;i++){
+    const p=document.createElement('div');
+    p.className='confetti';
+    p.style.left=Math.random()*100+'%';
+    p.style.background=colors[Math.floor(Math.random()*colors.length)];
+    p.style.animationDelay=(Math.random()*.3)+'s';
+    p.style.animationDuration=(.8+Math.random()*.6)+'s';
+    p.style.width=(4+Math.random()*6)+'px';
+    p.style.height=(4+Math.random()*6)+'px';
+    p.style.borderRadius=Math.random()>.5?'50%':'2px';
+    c.appendChild(p);
+  }
+  setTimeout(()=>{c.innerHTML='';},2000);
+}
+
+// ===== TOAST =====
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),1800);
+}
+
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+
+// ===== INIT =====
+const hr=new Date().getHours();
+document.getElementById('greeting').textContent=hr<12?'Good morning, Brian':hr<18?'Good afternoon, Brian':'Good evening, Brian';
+const now=new Date();
+document.getElementById('dateText').textContent=now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+
+render();
+if(currentTab==='all') renderAllTasks();
+</script>
+</body>
+</html>
