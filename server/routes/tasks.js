@@ -4,7 +4,7 @@ const { readData, writeData, getNextTaskId } = require('../lib/dataStore');
 
 // GET /api/tasks — 전체 태스크 (필터 지원)
 router.get('/', (req, res) => {
-  const data = readData();
+  const data = readData(req.user.uid);
   let tasks = data.tasks;
 
   // Optional filters
@@ -19,7 +19,7 @@ router.get('/', (req, res) => {
 
 // GET /api/tasks/:id — 단일 태스크
 router.get('/:id', (req, res) => {
-  const data = readData();
+  const data = readData(req.user.uid);
   const task = data.tasks.find(t => t.id === Number(req.params.id));
   if (!task) return res.status(404).json({ error: 'Task not found' });
   res.json(task);
@@ -27,7 +27,7 @@ router.get('/:id', (req, res) => {
 
 // POST /api/tasks — 태스크 추가
 router.post('/', (req, res) => {
-  const data = readData();
+  const data = readData(req.user.uid);
   const { name, desc, category, priority, section, day, duration_min, tags } = req.body;
 
   if (!name) return res.status(400).json({ error: 'name is required' });
@@ -48,18 +48,18 @@ router.post('/', (req, res) => {
   };
 
   data.tasks.push(newTask);
-  writeData(data);
+  writeData(data, req.user.uid);
 
   res.status(201).json(newTask);
 });
 
 // PATCH /api/tasks/:id — 태스크 수정
 router.patch('/:id', (req, res) => {
-  const data = readData();
+  const data = readData(req.user.uid);
   const idx = data.tasks.findIndex(t => t.id === Number(req.params.id));
   if (idx === -1) return res.status(404).json({ error: 'Task not found' });
 
-  const allowedFields = ['name', 'desc', 'category', 'priority', 'section', 'status', 'day', 'duration_min', 'tags'];
+  const allowedFields = ['name', 'desc', 'category', 'priority', 'section', 'status', 'day', 'duration_min', 'tags', 'when', 'where', 'how', 'commitment_deadline', 'commitment_stake'];
   const updates = req.body;
 
   for (const key of Object.keys(updates)) {
@@ -77,18 +77,18 @@ router.patch('/:id', (req, res) => {
     data.tasks[idx].done_at = null;
   }
 
-  writeData(data);
+  writeData(data, req.user.uid);
   res.json(data.tasks[idx]);
 });
 
 // DELETE /api/tasks/:id — 태스크 삭제
 router.delete('/:id', (req, res) => {
-  const data = readData();
+  const data = readData(req.user.uid);
   const idx = data.tasks.findIndex(t => t.id === Number(req.params.id));
   if (idx === -1) return res.status(404).json({ error: 'Task not found' });
 
   const deleted = data.tasks.splice(idx, 1)[0];
-  writeData(data);
+  writeData(data, req.user.uid);
   res.json({ deleted });
 });
 

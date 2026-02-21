@@ -4,6 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const config = require('./config');
 const { startCronJobs } = require('./lib/cron');
+const { authMiddleware } = require('./lib/auth');
 
 const app = express();
 
@@ -11,20 +12,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Bearer token auth (protects /api routes, allows static files)
-app.use('/api', (req, res, next) => {
-  // Health check is public
-  if (req.path === '/health') return next();
-
-  // If AUTH_TOKEN is not set, skip auth (dev mode)
-  if (!config.AUTH_TOKEN) return next();
-
-  const auth = req.headers.authorization;
-  if (!auth || auth !== `Bearer ${config.AUTH_TOKEN}`) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-  next();
-});
+// Auth middleware (supports Bearer token + Firebase tokens)
+app.use('/api', authMiddleware);
 
 // Serve static files (index.html dashboard)
 app.use(express.static(path.join(__dirname, '..')));
@@ -40,6 +29,7 @@ app.use('/api/voice', require('./routes/voice'));
 app.use('/api/braindump', require('./routes/braindump'));
 app.use('/api/report', require('./routes/report'));
 app.use('/api/sync', require('./routes/sync'));
+app.use('/api/sharing', require('./routes/sharing'));
 
 // Health check (public)
 app.get('/api/health', (req, res) => {

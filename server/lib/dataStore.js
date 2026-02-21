@@ -1,16 +1,58 @@
 const fs = require('fs');
 const path = require('path');
 
-const DATA_PATH = path.join(__dirname, '../../data/tasks.json');
+const DATA_DIR = path.join(__dirname, '../../data');
+const LEGACY_DATA_PATH = path.join(DATA_DIR, 'tasks.json');
 
-function readData() {
-  const raw = fs.readFileSync(DATA_PATH, 'utf-8');
+// Default template for new users
+const DEFAULT_DATA = {
+  tasks: [],
+  objectives: [],
+  brain_dumps: [],
+  reminders: [],
+  updated_at: new Date().toISOString(),
+};
+
+function getUserDataPath(uid) {
+  if (!uid || uid === 'default') return LEGACY_DATA_PATH;
+  return path.join(DATA_DIR, 'users', uid, 'tasks.json');
+}
+
+function ensureUserDir(uid) {
+  if (!uid || uid === 'default') return;
+  const userDir = path.join(DATA_DIR, 'users', uid);
+  if (!fs.existsSync(userDir)) {
+    fs.mkdirSync(userDir, { recursive: true });
+    // Copy from legacy or create template
+    if (fs.existsSync(LEGACY_DATA_PATH)) {
+      // Don't copy legacy data to new users — start fresh
+    }
+    fs.writeFileSync(
+      path.join(userDir, 'tasks.json'),
+      JSON.stringify(DEFAULT_DATA, null, 2),
+      'utf-8'
+    );
+  }
+}
+
+function readData(uid) {
+  const dataPath = getUserDataPath(uid);
+  if (!fs.existsSync(dataPath)) {
+    ensureUserDir(uid);
+    // If still doesn't exist (default user, first run), return template
+    if (!fs.existsSync(dataPath)) {
+      return JSON.parse(JSON.stringify(DEFAULT_DATA));
+    }
+  }
+  const raw = fs.readFileSync(dataPath, 'utf-8');
   return JSON.parse(raw);
 }
 
-function writeData(data) {
+function writeData(data, uid) {
+  const dataPath = getUserDataPath(uid);
+  ensureUserDir(uid);
   data.updated_at = new Date().toISOString();
-  fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2), 'utf-8');
+  fs.writeFileSync(dataPath, JSON.stringify(data, null, 2), 'utf-8');
   return data;
 }
 
@@ -20,7 +62,6 @@ function getNextTaskId(data) {
 }
 
 // Generate compressed task list for AI classifier (token-saving)
-// Format: "1:트렌딩뮤직 2:포스팅빈도 3:영상길이 ..."
 function compressedTaskList(data) {
   return data.tasks
     .filter(t => t.status !== 'done')
@@ -47,7 +88,6 @@ function generateMarkdown(data) {
 
     md += `## ${priorityLabels[pri]}\n\n`;
 
-    // Group by section
     const sections = {};
     for (const t of tasks) {
       const sec = t.section || '기타';
@@ -76,5 +116,8 @@ function generateMarkdown(data) {
 
   return md;
 }
+
+// For backward compat: DATA_PATH alias
+const DATA_PATH = LEGACY_DATA_PATH;
 
 module.exports = { readData, writeData, getNextTaskId, compressedTaskList, generateMarkdown, DATA_PATH };

@@ -25,7 +25,7 @@ router.post('/upload', upload.single('audio'), async (req, res) => {
     const transcript = await transcribeAudio(req.file.path);
 
     // Step 2: GPT-4o-mini smart agent
-    const data = readData();
+    const data = readData(req.user.uid);
     const compressed = compressedTaskList(data);
     const todayDate = new Date().toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' });
     const actions = await agentProcess(transcript, compressed, todayDate);
@@ -39,7 +39,7 @@ router.post('/upload', upload.single('audio'), async (req, res) => {
       results.push(result);
     }
 
-    writeData(data);
+    writeData(data, req.user.uid);
 
     // Cleanup uploaded file
     fs.unlink(req.file.path, () => {});
@@ -61,7 +61,7 @@ router.post('/text', async (req, res) => {
   if (!text) return res.status(400).json({ error: 'text is required' });
 
   try {
-    const data = readData();
+    const data = readData(req.user.uid);
     const compressed = compressedTaskList(data);
     const todayDate = new Date().toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' });
     const actions = await agentProcess(text, compressed, todayDate);
@@ -74,7 +74,7 @@ router.post('/text', async (req, res) => {
       results.push(result);
     }
 
-    writeData(data);
+    writeData(data, req.user.uid);
 
     res.json({
       transcript: text,
@@ -197,6 +197,15 @@ function applyAction(data, action) {
         resulting_actions: [],
       });
       return { action: 'note', note: action.note };
+    }
+    case 'commit': {
+      const task = data.tasks.find(t => t.id === action.task_id);
+      if (task) {
+        task.commitment_deadline = action.deadline || null;
+        task.commitment_stake = action.stake || null;
+        return { action: 'commit', task_id: task.id, task_name: task.name, deadline: action.deadline, stake: action.stake };
+      }
+      return { action: 'commit', error: `Task ${action.task_id} not found` };
     }
     default:
       return { action: 'unknown', raw: action };

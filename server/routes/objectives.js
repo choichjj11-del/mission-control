@@ -4,13 +4,13 @@ const { readData, writeData } = require('../lib/dataStore');
 
 // GET /api/objectives — 목표 목록
 router.get('/', (req, res) => {
-  const data = readData();
+  const data = readData(req.user.uid);
   res.json({ objectives: data.objectives });
 });
 
 // PATCH /api/objectives/:id — 목표 업데이트
 router.patch('/:id', (req, res) => {
-  const data = readData();
+  const data = readData(req.user.uid);
   const idx = data.objectives.findIndex(o => o.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'Objective not found' });
 
@@ -23,7 +23,7 @@ router.patch('/:id', (req, res) => {
     }
   }
 
-  writeData(data);
+  writeData(data, req.user.uid);
   res.json(data.objectives[idx]);
 });
 

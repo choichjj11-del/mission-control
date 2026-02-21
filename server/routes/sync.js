@@ -7,7 +7,7 @@ const config = require('../config');
 // POST /api/sync/github — Generate MD from tasks.json and push to GitHub
 router.post('/github', async (req, res) => {
   try {
-    const data = readData();
+    const data = readData(req.user.uid);
     const md = generateMarkdown(data);
     const filePath = 'master_tasks.md';
 

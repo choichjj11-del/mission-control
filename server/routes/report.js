@@ -1,12 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const { readData } = require('../lib/dataStore');
-const { generateDailyReport, generateWeeklyReport } = require('../lib/ai');
+const { generateDailyReport, generateWeeklyReport, callGPT } = require('../lib/ai');
+const config = require('../config');
 
 // GET /api/report/daily — 오늘 리포트
 router.get('/daily', async (req, res) => {
   try {
-    const data = readData();
+    const data = readData(req.user.uid);
     const today = new Date().toISOString().split('T')[0];
 
     // Find tasks modified today
@@ -57,7 +58,7 @@ router.get('/daily', async (req, res) => {
 // GET /api/report/weekly — 주간 리포트
 router.get('/weekly', async (req, res) => {
   try {
-    const data = readData();
+    const data = readData(req.user.uid);
     const now = new Date();
     const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     const weekAgoStr = weekAgo.toISOString();
@@ -99,7 +100,7 @@ router.get('/weekly', async (req, res) => {
 
 // GET /api/report/stats — 통계만 (AI 호출 없음)
 router.get('/stats', (req, res) => {
-  const data = readData();
+  const data = readData(req.user.uid);
   const total = data.tasks.length;
   const done = data.tasks.filter(t => t.status === 'done').length;
 
@@ -125,6 +126,54 @@ router.get('/stats', (req, res) => {
     by_category: byCategory,
     objectives: data.objectives,
   });
+});
+
+// GET /api/report/insights — AI-powered insights (costs tokens, call on demand)
+router.get('/insights', async (req, res) => {
+  try {
+    const data = readData(req.user.uid);
+    const total = data.tasks.length;
+    const done = data.tasks.filter(t => t.status === 'done').length;
+    const urgent = data.tasks.filter(t => t.priority === '즉시' && t.status !== 'done');
+    const now = new Date();
+    const threeDaysAgo = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000).toISOString();
+
+    // Stale tasks: created >3 days ago, still undone
+    const stale = data.tasks.filter(t =>
+      t.status !== 'done' && t.created_at && t.created_at < threeDaysAgo
+    );
+
+    const byCategory = {};
+    for (const t of data.tasks) {
+      if (!byCategory[t.category]) byCategory[t.category] = { total: 0, done: 0 };
+      byCategory[t.category].total++;
+      if (t.status === 'done') byCategory[t.category].done++;
+    }
+
+    const analysisText = [
+      `전체: ${done}/${total} 완료 (${Math.round(done / total * 100)}%)`,
+      `즉시 실행 미완료 (${urgent.length}개): ${urgent.map(t => t.name).join(', ')}`,
+      `3일 이상 방치 (${stale.length}개): ${stale.slice(0, 5).map(t => `${t.name}(${t.priority})`).join(', ')}`,
+      `카테고리별: ${Object.entries(byCategory).map(([k, v]) => `${k}: ${v.done}/${v.total}`).join(', ')}`,
+    ].join('\n');
+
+    const systemPrompt = `당신은 생산성 코치입니다. 태스크 데이터를 분석해서 3-4개의 짧고 실행 가능한 인사이트를 JSON으로 반환하세요.
+응답 형식 (JSON만, 설명 없이):
+[
+  {"icon": "이모지", "title": "제목", "body": "1-2문장 설명"},
+  ...
+]
+자율성 지지적 언어 사용 ("~해보는 건 어때요?" not "~해야 합니다").`;
+
+    const raw = await callGPT(config.AI.AGENT_MODEL, systemPrompt, analysisText, 500);
+    const jsonStr = raw.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    const insights = JSON.parse(jsonStr);
+
+    res.json({ insights });
+  } catch (err) {
+    console.error('Insights error:', err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 module.exports = router;

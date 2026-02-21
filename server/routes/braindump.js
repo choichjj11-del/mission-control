@@ -11,7 +11,7 @@ router.post('/', async (req, res) => {
   if (!text) return res.status(400).json({ error: 'text is required' });
 
   try {
-    const data = readData();
+    const data = readData(req.user.uid);
 
     // Send task list (names + priorities, no full descriptions) to GPT-4o-mini
     const taskList = data.tasks.map(t => ({
@@ -74,7 +74,7 @@ router.post('/', async (req, res) => {
     };
     data.brain_dumps.push(bdRecord);
 
-    writeData(data);
+    writeData(data, req.user.uid);
 
     res.json({
       new_tasks: addedTasks,
@@ -90,7 +90,7 @@ router.post('/', async (req, res) => {
 
 // GET /api/braindump — 브레인덤프 히스토리
 router.get('/', (req, res) => {
-  const data = readData();
+  const data = readData(req.user.uid);
   res.json({ brain_dumps: data.brain_dumps });
 });
 

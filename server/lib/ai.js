@@ -59,7 +59,7 @@ async function callGPT(model, systemPrompt, userMessage, maxTokens = 500) {
 }
 
 // ===== GPT-4o-mini Smart Agent =====
-// Full agent: check, uncheck, add, update, note, schedule, remind, query, report, prioritize
+// Full agent: check, uncheck, add, update, note, schedule, remind, query, report, prioritize, commit
 async function agentProcess(transcript, compressedTasks, todayDate) {
   const systemPrompt = `당신은 Brian의 개인 비서 에이전트입니다. 음성 입력을 분석해서 JSON으로 반환하세요.
 
@@ -74,6 +74,7 @@ async function agentProcess(transcript, compressedTasks, todayDate) {
 - query: 질문에 대한 답변 {"action":"query","response":"오늘 할 일은 3개입니다: ..."}
 - report: 즉석 리포트 {"action":"report","response":"오늘 2개 완료, 즉시 실행 4개 남음"}
 - note: 메모 저장 {"action":"note","note":"메모 내용"}
+- commit: 유저가 약속/다짐을 표현할 때 {"action":"commit","task_id":1,"deadline":"2026-02-23T18:00:00+09:00","stake":"친구한테 커피 사기"}
 
 현재 태스크 (ID:이름):
 ${compressedTasks}
@@ -87,7 +88,10 @@ ${compressedTasks}
 - 단일 액션이면 객체: {action}
 - remind의 remind_at은 반드시 ISO 8601 형식 (KST +09:00)
 - "내일 6시" → 내일 06:00 KST
-- query/report의 response는 한국어로 간결하게`;
+- query/report의 response는 한국어로 간결하게
+- 자율성 지지적 언어 사용: "~해보는 건 어때요?", "~해볼까요?" (NOT "~해야 합니다", "~하세요")
+- 유저가 "꼭 할게", "반드시", "약속" 등 다짐 표현 시 commit 액션 사용
+- 격려와 지지적 톤 유지`;
 
   const raw = await callGPT(config.AI.AGENT_MODEL, systemPrompt, transcript, 500);
   const jsonStr = raw.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();

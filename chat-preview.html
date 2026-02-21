@@ -132,11 +132,27 @@ body{
   margin-bottom:4px;
 }
 .ac-task{color:var(--green)}
+.ac-add{color:var(--green)}
 .ac-remind{color:var(--orange)}
 .ac-note{color:var(--blue)}
 .ac-done{color:var(--green)}
+.ac-check{color:var(--green)}
+.ac-uncheck{color:var(--orange)}
+.ac-query{color:var(--blue)}
+.ac-report{color:var(--blue)}
+.ac-update{color:var(--orange)}
+.ac-schedule{color:var(--orange)}
+.ac-prioritize{color:var(--orange)}
 .action-card .ac-name{font-weight:600;font-size:13px}
 .action-card .ac-detail{color:var(--text2);font-size:11px;margin-top:2px}
+
+/* Typing indicator */
+.typing-indicator{align-self:flex-start;margin-bottom:10px}
+.typing-indicator .bubble{display:flex;gap:4px;padding:12px 16px}
+.typing-dot{width:6px;height:6px;border-radius:50%;background:var(--text3);animation:typingBounce .6s infinite alternate}
+.typing-dot:nth-child(2){animation-delay:.15s}
+.typing-dot:nth-child(3){animation-delay:.3s}
+@keyframes typingBounce{from{opacity:.3;transform:translateY(0)}to{opacity:1;transform:translateY(-3px)}}
 
 /* Time label */
 .time-label{
@@ -313,6 +329,14 @@ body{
 .ins-card .ins-icon{font-size:16px;margin-bottom:6px}
 .ins-card .ins-head{font-weight:700;color:var(--text);margin-bottom:4px;font-size:13px}
 .ins-card .ins-highlight{color:var(--black);font-weight:700}
+.ins-refresh{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:6px 14px;border-radius:20px;
+  font-size:11px;font-weight:600;
+  background:var(--black);color:#fff;
+  border:none;cursor:pointer;margin-bottom:12px;
+}
+.ins-refresh:active{opacity:.7}
 .obj-mini{
   background:var(--surface);border:1px solid var(--border);
   border-radius:var(--rs);padding:12px 14px;margin-bottom:6px;
@@ -322,6 +346,36 @@ body{
 .obj-mini-pct{font-size:12px;font-weight:700;color:var(--text3)}
 .obj-mini-bar{height:4px;background:var(--bg2);border-radius:2px;overflow:hidden}
 .obj-mini-fill{height:100%;border-radius:2px;background:var(--black)}
+
+/* ===== CELEBRATION ===== */
+.celebration{
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  pointer-events:none;z-index:4000;
+  overflow:hidden;
+}
+.confetti{
+  position:absolute;width:8px;height:8px;border-radius:2px;
+  animation:confettiFall 1.2s ease-out forwards;
+}
+@keyframes confettiFall{
+  0%{transform:translateY(-20px) rotate(0deg) scale(1);opacity:1}
+  100%{transform:translateY(100vh) rotate(720deg) scale(0.3);opacity:0}
+}
+.celebration-text{
+  position:fixed;top:40%;left:50%;transform:translate(-50%,-50%);
+  font-size:40px;z-index:4001;pointer-events:none;
+  animation:celebPop .6s ease-out forwards;
+}
+@keyframes celebPop{0%{transform:translate(-50%,-50%) scale(0);opacity:0}50%{transform:translate(-50%,-50%) scale(1.3);opacity:1}100%{transform:translate(-50%,-50%) scale(1);opacity:0}}
+
+/* Break-it-down button */
+.t-break{
+  font-size:9px;font-weight:600;color:var(--blue);
+  padding:2px 7px;border-radius:6px;
+  background:#eff6ff;cursor:pointer;border:none;
+  margin-left:4px;
+}
+.t-break:active{opacity:.6}
 
 /* ===== TOAST ===== */
 .toast{
@@ -340,9 +394,9 @@ body{
   .app{flex-direction:row}
   .header,.tab-bar{display:none}
   .panel{display:flex!important;border-right:1px solid var(--border)}
-  .panel-chat{width:420px;min-width:360px}
-  .panel-tasks{width:400px;min-width:340px}
-  .panel-insights{flex:1;border-right:none}
+  .panel-insights{order:1;flex:1;border-right:1px solid var(--border)}
+  .panel-tasks{order:2;width:400px;min-width:340px}
+  .panel-chat{order:3;width:420px;min-width:360px;border-right:none}
   .chat-input-wrap{padding-bottom:12px}
   .tasks-pad{padding-bottom:16px}
   .desk-head{
@@ -361,7 +415,49 @@ body{
 }
 
 ::-webkit-scrollbar{width:0;height:0}
+
+/* ===== AUTH & SHARE UI ===== */
+.auth-bar{
+  display:flex;align-items:center;gap:8px;
+  font-size:11px;color:var(--text3);
+}
+.auth-name{font-weight:600;color:var(--text2);max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.auth-btn{
+  padding:4px 10px;border-radius:6px;
+  font-size:10px;font-weight:600;
+  border:1px solid var(--border);background:var(--bg);color:var(--text2);
+  cursor:pointer;
+}
+.auth-btn:active{background:var(--bg2)}
+.share-modal-overlay{
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  background:rgba(0,0,0,.4);z-index:3000;
+  display:none;align-items:center;justify-content:center;
+}
+.share-modal-overlay.show{display:flex}
+.share-modal{
+  background:var(--bg);border-radius:var(--r);
+  padding:24px;width:90%;max-width:340px;
+  box-shadow:0 16px 48px rgba(0,0,0,.2);
+}
+.share-modal h3{font-size:15px;font-weight:700;margin-bottom:12px}
+.share-modal input{
+  width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:var(--rs);
+  font-size:13px;font-family:inherit;outline:none;margin-bottom:8px;
+}
+.share-modal input:focus{border-color:var(--black)}
+.share-modal-actions{display:flex;gap:8px;justify-content:flex-end}
+.share-modal-actions button{
+  padding:8px 16px;border-radius:var(--rs);font-size:12px;font-weight:600;
+  border:none;cursor:pointer;
+}
+.share-cancel{background:var(--bg2);color:var(--text2)}
+.share-send{background:var(--black);color:#fff}
 </style>
+
+<!-- Firebase SDK (CDN, no npm) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 </head>
 <body>
 <div class="app">
@@ -371,33 +467,38 @@ body{
   <div class="h-row">
     <div class="h-title">Mission Control</div>
     <div class="h-right">
-      <div class="h-dot"></div>
-      <div class="h-status">Online</div>
+      <div class="auth-bar" id="authBar">
+        <button class="auth-btn" id="authBtn" onclick="handleAuth()">Sign In</button>
+      </div>
+      <button class="auth-btn" onclick="openShareModal()" style="margin-left:4px">Share</button>
     </div>
   </div>
 </div>
 
-<!-- TAB BAR (mobile) -->
-<div class="tab-bar">
-  <div class="tab active" onclick="switchTab('chat',this)">Dump</div>
-  <div class="tab" onclick="switchTab('tasks',this)">Tasks</div>
-  <div class="tab" onclick="switchTab('insights',this)">Insights</div>
+<!-- Share Modal -->
+<div class="share-modal-overlay" id="shareModal">
+  <div class="share-modal">
+    <h3>Share Tasks</h3>
+    <input type="email" id="shareEmail" placeholder="Email address to share with">
+    <div class="share-modal-actions">
+      <button class="share-cancel" onclick="closeShareModal()">Cancel</button>
+      <button class="share-send" onclick="sendShareInvite()">Share</button>
+    </div>
+  </div>
 </div>
 
-<!-- ===== CHAT (BRAIN DUMP) ===== -->
-<div class="panel panel-chat active" id="panelChat">
-  <div class="desk-head">Brain Dump</div>
-  <div class="chat-messages" id="chatMessages"></div>
-  <div class="chat-input-wrap">
-    <div class="chat-input-row">
-      <button class="mic-btn" id="micBtn" onclick="toggleMic()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
-      </button>
-      <textarea class="chat-textarea" id="chatInput" rows="1" placeholder="아무거나 던져봐..." oninput="autoGrow(this)" onkeydown="handleKey(event)"></textarea>
-      <button class="chat-send" id="sendBtn" onclick="sendMessage()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-      </button>
-    </div>
+<!-- TAB BAR (mobile): Insights first, Tasks second, Dump third -->
+<div class="tab-bar">
+  <div class="tab active" onclick="switchTab('insights',this)">Insights</div>
+  <div class="tab" onclick="switchTab('tasks',this)">Tasks</div>
+  <div class="tab" onclick="switchTab('chat',this)">Dump</div>
+</div>
+
+<!-- ===== INSIGHTS (first/active) ===== -->
+<div class="panel panel-insights active" id="panelInsights">
+  <div class="desk-head">Insights</div>
+  <div class="insights-scroll">
+    <div class="insights-pad" id="insightsContent"></div>
   </div>
 </div>
 
@@ -413,11 +514,20 @@ body{
   </div>
 </div>
 
-<!-- ===== INSIGHTS ===== -->
-<div class="panel panel-insights" id="panelInsights">
-  <div class="desk-head">Insights</div>
-  <div class="insights-scroll">
-    <div class="insights-pad" id="insightsContent"></div>
+<!-- ===== CHAT (BRAIN DUMP) ===== -->
+<div class="panel panel-chat" id="panelChat">
+  <div class="desk-head">Brain Dump</div>
+  <div class="chat-messages" id="chatMessages"></div>
+  <div class="chat-input-wrap">
+    <div class="chat-input-row">
+      <button class="mic-btn" id="micBtn" onclick="toggleMic()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
+      </button>
+      <textarea class="chat-textarea" id="chatInput" rows="1" placeholder="아무거나 던져봐..." oninput="autoGrow(this)" onkeydown="handleKey(event)"></textarea>
+      <button class="chat-send" id="sendBtn" onclick="sendMessage()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      </button>
+    </div>
   </div>
 </div>
 
@@ -426,346 +536,838 @@ body{
 <div class="toast" id="toast"></div>
 
 <script>
-// ===== DATA =====
-const TASKS=[
-  {id:1,name:"트렌딩 뮤직 90%+ 적용",desc:"현재 52% → 에디츠 앱에서 수동 적용",cat:"content",pri:"즉시",sub:"갓템홈 개선",day:1,dur:15,tags:[]},
-  {id:2,name:"포스팅 빈도 조절",desc:"인스타 1개(베스트), 나머지 분산",cat:"content",pri:"즉시",sub:"갓템홈 개선",day:1,dur:null,tags:[]},
-  {id:3,name:"영상 길이 24~26초로",desc:"Top3 평균 25.6초",cat:"content",pri:"즉시",sub:"갓템홈 개선",day:2,dur:null,tags:[]},
-  {id:4,name:"hehe_home_tem 벤치마킹",desc:"1/2/1/2 패턴",cat:"content",pri:"즉시",sub:"갓템홈 개선",day:2,dur:30,tags:[]},
-  {id:5,name:"뷰티 카테고리 테스트",desc:"경쟁채널 뷰티 평균 24.3만회",cat:"growth",pri:"즉시",sub:"갓템홈 개선",day:3,dur:45,tags:["highlight"]},
-  {id:6,name:"캡션 hook 강화",desc:"\"연예인이 극찬한\" 패턴",cat:"content",pri:"즉시",sub:"갓템홈 개선",day:3,dur:20,tags:[]},
-  {id:7,name:"ManyChat + n8n 구축",desc:"포스트별 링크 자동 매핑",cat:"auto",pri:"즉시",sub:"ManyChat",day:4,dur:120,tags:[]},
-  {id:8,name:"n8n 포스트ID 매핑",desc:"Plann 예약 시 DB 등록",cat:"auto",pri:"즉시",sub:"ManyChat",day:4,dur:60,tags:[]},
-  {id:9,name:"ManyChat Pro 결제",desc:"기존 계정 찾기 or 새로",cat:"infra",pri:"즉시",sub:"ManyChat",day:5,dur:30,tags:[]},
-  {id:10,name:"다국어 자막/음성",desc:"기존 영상 활용",cat:"content",pri:"단기",sub:"다국어",day:8,dur:120,tags:[]},
-  {id:11,name:"테스트 언어 우선순위",desc:"영어, 일본어, 베트남어",cat:"growth",pri:"단기",sub:"다국어",day:8,dur:30,tags:[]},
-  {id:12,name:"다국어 파이프라인 설계",desc:"ElevenLabs TTS → 자막 교체",cat:"auto",pri:"단기",sub:"다국어",day:9,dur:180,tags:[]},
-  {id:13,name:"언어별 계정 생성",desc:".en / .jp / .vn",cat:"infra",pri:"단기",sub:"다국어",day:10,dur:60,tags:[]},
-  {id:14,name:"파일럿 10개 영상",desc:"2주 테스트",cat:"growth",pri:"단기",sub:"다국어",day:11,dur:240,tags:[]},
-  {id:15,name:"채널 다양화 검토",desc:"뷰티템, 키친템, 가젯",cat:"growth",pri:"단기",sub:"멀티채널",day:12,dur:null,tags:[]},
-  {id:16,name:"세컨 계정 전략",desc:"같은 소스 다른 니치",cat:"growth",pri:"단기",sub:"멀티채널",day:12,dur:null,tags:[]},
-  {id:17,name:"플랫폼 분산",desc:"인스타+틱톡+클립+페북",cat:"content",pri:"단기",sub:"멀티채널",day:13,dur:null,tags:[]},
-  {id:18,name:"어필리에이트 연결",desc:"인포크→쿠팡, 해외→아마존",cat:"growth",pri:"단기",sub:"멀티채널",day:14,dur:null,tags:[]},
-  {id:19,name:"아마존 어필리에이트",desc:"글로벌 수익",cat:"growth",pri:"단기",sub:"멀티채널",day:14,dur:null,tags:[]},
-  {id:20,name:"인포크 셀레니움 배포",desc:"완료",cat:"infra",pri:"단기",sub:"인프라",day:null,dur:null,tags:[],done:true},
-  {id:21,name:"데일리 매니저 봇 검증",desc:"완료",cat:"infra",pri:"단기",sub:"인프라",day:null,dur:null,tags:[],done:true},
-  {id:22,name:"n8n 프롬프트 최적화",desc:"Top10 → 동적 프롬프트",cat:"auto",pri:"단기",sub:"인프라",day:6,dur:null,tags:[]},
-  {id:23,name:"네이버 클립 업로드",desc:"밀린 것",cat:"content",pri:"단기",sub:"인프라",day:6,dur:null,tags:[]},
-  {id:24,name:"인포크 수동 업로드",desc:"밀린 것",cat:"content",pri:"단기",sub:"인프라",day:7,dur:null,tags:[]},
-  {id:25,name:"2주 후 재측정",desc:"15K+ 목표",cat:"growth",pri:"중기",sub:"",day:null,dur:null,tags:["high"]},
-  {id:26,name:"다국어 파일럿 분석",desc:"ROI 판단",cat:"growth",pri:"중기",sub:"",day:null,dur:null,tags:["high"]},
-  {id:27,name:"1% Growth 롱폼",desc:"첫 영상 주제",cat:"content",pri:"중기",sub:"",day:null,dur:null,tags:[]},
-  {id:28,name:"디지털 상품 제작",desc:"노션 템플릿",cat:"growth",pri:"중기",sub:"",day:null,dur:null,tags:[]},
-  {id:29,name:"어필리에이트 퍼널",desc:"리드마그넷 → 컨설팅",cat:"growth",pri:"중기",sub:"",day:null,dur:null,tags:[]},
-  {id:30,name:"알람 앱 MVP",desc:"React Native",cat:"infra",pri:"중기",sub:"",day:null,dur:null,tags:[]},
-  {id:31,name:"UGC 인플루언서",desc:"에이전트 브리핑",cat:"growth",pri:"중기",sub:"",day:null,dur:null,tags:[]},
-  {id:32,name:"OpenClaw 에이전트",desc:"트렌드 자동화",cat:"auto",pri:"중기",sub:"",day:null,dur:null,tags:[]},
-  {id:33,name:"AI UGC 자동화",desc:"Arcads+ElevenLabs",cat:"auto",pri:"장기",sub:"",day:null,dur:null,tags:[]},
-  {id:34,name:"얼굴 스왑 자동화",desc:"MJ V7+FaceFusion",cat:"auto",pri:"장기",sub:"",day:null,dur:null,tags:[]},
-  {id:35,name:"AI 아바타 멀티채널",desc:"일관된 캐릭터",cat:"auto",pri:"장기",sub:"",day:null,dur:null,tags:[]},
-  {id:36,name:"네이버 블로그 자동화",desc:"오픈 API",cat:"auto",pri:"장기",sub:"",day:null,dur:null,tags:[]},
-  {id:37,name:"네이버 클립 자동화",desc:"셀레니움",cat:"auto",pri:"장기",sub:"",day:null,dur:null,tags:[]},
-  {id:38,name:"다국어 풀스케일",desc:"5개 언어+",cat:"growth",pri:"장기",sub:"",day:null,dur:null,tags:[]}
-];
+// ===== FIREBASE CONFIG =====
+// Replace with your Firebase project config
+const FIREBASE_CONFIG = {
+  apiKey: "",
+  authDomain: "",
+  projectId: "",
+};
+
+// Init Firebase (only if config is set)
+let firebaseApp = null;
+let firebaseAuth = null;
+let currentUser = null;
+let idToken = null;
+
+if (FIREBASE_CONFIG.apiKey && typeof firebase !== 'undefined') {
+  firebaseApp = firebase.initializeApp(FIREBASE_CONFIG);
+  firebaseAuth = firebase.auth();
+}
+
+// ===== API CONFIG =====
+const API_BASE = window.location.origin + '/api';
 
 // ===== STATE =====
-let doneIds=JSON.parse(localStorage.getItem('mc3_done')||'[]');
-let filter='all';
-const CAT_BADGE={content:'b-content',auto:'b-auto',growth:'b-growth',infra:'b-infra'};
-const CAT_LABEL={content:'Content',auto:'Auto',growth:'Growth',infra:'Infra'};
-const PRI_COLOR={'즉시':'var(--red)','단기':'var(--orange)','중기':'var(--blue)','장기':'var(--text3)'};
+let tasks = [];
+let filter = 'all';
+let isSending = false;
+const CAT_BADGE = {content:'b-content', auto:'b-auto', growth:'b-growth', infra:'b-infra'};
+const CAT_LABEL = {content:'Content', auto:'Auto', growth:'Growth', infra:'Infra'};
+const PRI_COLOR = {'즉시':'var(--red)', '단기':'var(--orange)', '중기':'var(--blue)', '장기':'var(--text3)'};
 
-function isDone(id){return doneIds.includes(id)||TASKS.find(t=>t.id===id)?.done}
-function toggle(id){
-  if(TASKS.find(t=>t.id===id)?.done) return;
-  const i=doneIds.indexOf(id);
-  if(i>=0) doneIds.splice(i,1); else doneIds.push(id);
-  localStorage.setItem('mc3_done',JSON.stringify(doneIds));
-  renderTasks();renderStats();renderInsights();
-  toast(isDone(id)?'Done!':'Restored');
-}
+// Voice recording state
+let mediaRecorder = null;
+let audioChunks = [];
 
-// ===== TABS =====
-function switchTab(t,el){
-  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
-  if(el) el.classList.add('active');
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-  document.getElementById('panel'+t.charAt(0).toUpperCase()+t.slice(1)).classList.add('active');
-}
-
-// ===== CHAT =====
-const chatEl=document.getElementById('chatMessages');
-let messages=JSON.parse(localStorage.getItem('mc3_chat')||'[]');
-
-function addSystemMsg(text){
-  messages.push({role:'ai',text,time:Date.now()});
-  localStorage.setItem('mc3_chat',JSON.stringify(messages));
-}
-
-function renderChat(){
-  let h='';
-  let lastDate='';
-  messages.forEach((m,i)=>{
-    const d=new Date(m.time);
-    const ds=d.toLocaleDateString('ko-KR',{month:'short',day:'numeric'});
-    if(ds!==lastDate){h+='<div class="time-label">'+ds+'</div>';lastDate=ds;}
-    h+='<div class="msg-row '+m.role+'" style="animation-delay:'+(i*.02)+'s">';
-    h+='<div class="bubble">'+formatMsg(m.text)+'</div></div>';
-  });
-  if(messages.length===0){
-    h='<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text3);text-align:center;padding:40px 20px">';
-    h+='<div style="font-size:32px;margin-bottom:12px">💭</div>';
-    h+='<div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px">Brain Dump</div>';
-    h+='<div style="font-size:13px;line-height:1.6">생각나는 거 아무거나 던져봐.<br>텍스트든 음성이든.</div>';
-    h+='</div>';
+// ===== AUTH FUNCTIONS =====
+function updateAuthUI() {
+  const bar = document.getElementById('authBar');
+  const btn = document.getElementById('authBtn');
+  if (currentUser) {
+    bar.innerHTML = '<span class="auth-name">' + esc(currentUser.displayName || currentUser.email) + '</span>' +
+      '<button class="auth-btn" onclick="handleAuth()">Logout</button>';
+  } else {
+    bar.innerHTML = '<button class="auth-btn" onclick="handleAuth()">Sign In</button>';
   }
-  chatEl.innerHTML=h;
-  chatEl.scrollTop=chatEl.scrollHeight;
 }
 
-function formatMsg(text){
-  // Parse action cards
-  const actionMatch=text.match(/\[ACTION:(.*?)\]/g);
-  if(!actionMatch) return esc(text);
-  let out=text;
-  actionMatch.forEach(a=>{
-    try{
-      const json=JSON.parse(a.replace('[ACTION:','').replace(']',''));
-      let card='<div class="action-card">';
-      card+='<div class="ac-type ac-'+json.type+'">'+(json.type==='task'?'✓ 태스크 생성':json.type==='remind'?'⏰ 리마인더':json.type==='done'?'✅ 완료 처리':'📝 메모')+'</div>';
-      card+='<div class="ac-name">'+esc(json.name||json.message||'')+'</div>';
-      if(json.detail) card+='<div class="ac-detail">'+esc(json.detail)+'</div>';
-      card+='</div>';
-      out=out.replace(a,card);
-    }catch(e){out=out.replace(a,'');}
-  });
-  return out.replace(/\n/g,'<br>');
-}
-
-function sendMessage(){
-  const input=document.getElementById('chatInput');
-  const text=input.value.trim();
-  if(!text) return;
-  input.value='';
-  input.style.height='42px';
-
-  messages.push({role:'user',text,time:Date.now()});
-  renderChat();
-
-  // Simulate AI processing
-  setTimeout(()=>{
-    const response=processInput(text);
-    messages.push({role:'ai',text:response,time:Date.now()});
-    localStorage.setItem('mc3_chat',JSON.stringify(messages));
-    renderChat();
-    renderTasks();renderStats();renderInsights();
-  },400);
-}
-
-function processInput(text){
-  const lower=text.toLowerCase();
-
-  // Check/done pattern
-  for(const t of TASKS){
-    if(text.includes(t.name.substring(0,6)) && (lower.includes('완료')||lower.includes('했')||lower.includes('끝')||lower.includes('done'))){
-      if(!isDone(t.id)){
-        doneIds.push(t.id);
-        localStorage.setItem('mc3_done',JSON.stringify(doneIds));
-        return '처리했어! [ACTION:{"type":"done","name":"'+t.name+'"}]';
+async function handleAuth() {
+  if (!firebaseAuth) {
+    toast('Firebase not configured');
+    return;
+  }
+  if (currentUser) {
+    await firebaseAuth.signOut();
+    currentUser = null;
+    idToken = null;
+    updateAuthUI();
+    toast('Logged out');
+    await fetchTasks();
+  } else {
+    try {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      const result = await firebaseAuth.signInWithPopup(provider);
+      currentUser = result.user;
+      idToken = await currentUser.getIdToken();
+      updateAuthUI();
+      toast('Welcome, ' + (currentUser.displayName || currentUser.email));
+      await fetchTasks();
+    } catch (e) {
+      if (e.code !== 'auth/popup-closed-by-user') {
+        toast('Sign-in failed');
+        console.error('Auth error:', e);
       }
     }
   }
+}
 
-  // Remind pattern
-  if(lower.includes('리마인')||lower.includes('알려')||lower.includes('remind')||lower.includes('알람')){
-    const timeMatch=text.match(/(\d{1,2})(시|am|pm)/i);
-    const time=timeMatch?timeMatch[0]:'내일 아침';
-    return '알림 설정했어.\n[ACTION:{"type":"remind","name":"'+esc(text.substring(0,30))+'","detail":"'+time+' 알림 예정"}]';
+// Share modal
+function openShareModal() {
+  document.getElementById('shareModal').classList.add('show');
+  document.getElementById('shareEmail').focus();
+}
+function closeShareModal() {
+  document.getElementById('shareModal').classList.remove('show');
+  document.getElementById('shareEmail').value = '';
+}
+async function sendShareInvite() {
+  const email = document.getElementById('shareEmail').value.trim();
+  if (!email) return;
+  try {
+    await apiFetch('/sharing/invite', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+    toast('Shared with ' + email);
+    closeShareModal();
+  } catch (e) {
+    toast('Share failed: ' + e.message);
+  }
+}
+
+// ===== API HELPERS (with auth) =====
+async function apiFetch(url, opts = {}) {
+  const headers = { 'Content-Type': 'application/json', ...opts.headers };
+  // Attach Firebase auth token if available
+  if (idToken) {
+    headers['Authorization'] = 'Firebase ' + idToken;
+  }
+  const resp = await fetch(API_BASE + url, { ...opts, headers });
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({ error: resp.statusText }));
+    throw new Error(err.error || resp.statusText);
+  }
+  return resp.json();
+}
+
+// ===== FETCH TASKS FROM API =====
+async function fetchTasks() {
+  try {
+    const data = await apiFetch('/tasks');
+    tasks = data.tasks.map(t => ({
+      id: t.id,
+      name: t.name,
+      desc: t.desc,
+      cat: t.category,
+      pri: t.priority,
+      sub: t.section,
+      dur: t.duration_min,
+      day: t.day,
+      tags: t.tags || [],
+      done: t.status === 'done',
+    }));
+    renderStats();
+    renderTasks();
+    renderInsights();
+  } catch (e) {
+    console.error('Failed to fetch tasks:', e);
+    toast('Failed to load tasks');
+  }
+}
+
+// ===== COMPLETION TRACKING =====
+let completedCount = parseInt(localStorage.getItem('mc_completedCount') || '0');
+
+// Variable reward messages (~20% chance)
+const SURPRISE_MESSAGES = [
+  'You\'re on fire today!',
+  'Momentum is building!',
+  'That felt good, didn\'t it?',
+  'Unstoppable!',
+  'Keep that energy going!',
+  'One step closer to the goal!',
+];
+
+// ===== TOGGLE TASK (optimistic + API + behavioral science) =====
+async function toggle(id) {
+  const t = tasks.find(x => x.id === id);
+  if (!t) return;
+
+  // Optimistic update
+  const wasDone = t.done;
+  t.done = !wasDone;
+  renderTasks(); renderStats(); renderInsights();
+
+  if (t.done) {
+    // Progress Principle: celebration
+    completedCount++;
+    localStorage.setItem('mc_completedCount', completedCount);
+    showCelebration();
+
+    // Milestone toasts
+    if (completedCount === 5) toast('5 tasks done! Great start!');
+    else if (completedCount === 10) toast('10 tasks done! You\'re crushing it!');
+    else if (completedCount === 25) toast('25 tasks done! Legendary!');
+    else if (Math.random() < 0.2) {
+      // Variable reward: ~20% chance surprise message
+      toast(SURPRISE_MESSAGES[Math.floor(Math.random() * SURPRISE_MESSAGES.length)]);
+    } else {
+      toast('Done!');
+    }
+  } else {
+    toast('Restored');
   }
 
-  // Add task pattern
-  if(lower.includes('해야')||lower.includes('할 것')||lower.includes('추가')||lower.includes('등록')||lower.includes('todo')){
-    const taskName=text.replace(/해야|할 것|추가|등록|좀|해줘|todo/gi,'').trim().substring(0,40);
-    if(taskName.length>2){
-      return '태스크에 넣었어.\n[ACTION:{"type":"task","name":"'+esc(taskName)+'","detail":"단기 · 미배정"}]';
+  try {
+    await apiFetch('/tasks/' + id, {
+      method: 'PATCH',
+      body: JSON.stringify({ status: t.done ? 'done' : 'todo' }),
+    });
+  } catch (e) {
+    // Rollback on error
+    t.done = wasDone;
+    if (t.done === false) completedCount = Math.max(0, completedCount - 1);
+    localStorage.setItem('mc_completedCount', completedCount);
+    renderTasks(); renderStats(); renderInsights();
+    toast('Failed to update');
+  }
+}
+
+// ===== CELEBRATION ANIMATION =====
+function showCelebration() {
+  const container = document.createElement('div');
+  container.className = 'celebration';
+  const colors = ['#22c55e', '#3b82f6', '#f97316', '#ef4444', '#8b5cf6', '#eab308'];
+  for (let i = 0; i < 20; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = Math.random() * 100 + '%';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.animationDelay = Math.random() * 0.3 + 's';
+    c.style.animationDuration = (0.8 + Math.random() * 0.6) + 's';
+    container.appendChild(c);
+  }
+  document.body.appendChild(container);
+  setTimeout(() => container.remove(), 1500);
+}
+
+// ===== BREAK IT DOWN (Tiny Habits) =====
+async function breakItDown(id, event) {
+  event.stopPropagation();
+  const t = tasks.find(x => x.id === id);
+  if (!t) return;
+  toast('Breaking down: ' + t.name);
+  try {
+    const resp = await fetch(API_BASE + '/voice/text', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...(idToken ? { 'Authorization': 'Firebase ' + idToken } : {}) },
+      body: JSON.stringify({ text: '"' + t.name + '" \uC774 \uD0DC\uC2A4\uD06C\uB97C 2-3\uAC1C\uC758 \uC791\uC740 \uC2A4\uD15D\uC73C\uB85C \uCABC\uAC1C\uC918' }),
+    });
+    const data = await resp.json();
+    if (resp.ok) {
+      // Add AI response to chat
+      const aiText = '\uCABC\uAC1C\uBD04!' + formatActionsToChat(data.actions_taken || []);
+      messages.push({role: 'ai', text: aiText, time: Date.now()});
+      localStorage.setItem('mc3_chat', JSON.stringify(messages));
+      renderChat();
+      await fetchTasks();
+      toast('Sub-tasks created!');
+    }
+  } catch (e) {
+    toast('Break down failed');
+  }
+}
+
+// ===== TABS =====
+function switchTab(t, el) {
+  document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+  if (el) el.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel' + t.charAt(0).toUpperCase() + t.slice(1)).classList.add('active');
+
+  // Auto-activate voice when switching to Dump tab
+  if (t === 'chat' && localStorage.getItem('mc_autoVoice') !== 'off') {
+    setTimeout(() => {
+      if (!mediaRecorder || mediaRecorder.state !== 'recording') {
+        startVoiceRecording();
+      }
+    }, 300);
+  }
+}
+
+// ===== CHAT =====
+const chatEl = document.getElementById('chatMessages');
+let messages = JSON.parse(localStorage.getItem('mc3_chat') || '[]');
+
+function renderChat() {
+  let h = '';
+  let lastDate = '';
+  messages.forEach((m, i) => {
+    const d = new Date(m.time);
+    const ds = d.toLocaleDateString('ko-KR', {month:'short', day:'numeric'});
+    if (ds !== lastDate) { h += '<div class="time-label">' + ds + '</div>'; lastDate = ds; }
+    h += '<div class="msg-row ' + m.role + '" style="animation-delay:' + (i * .02) + 's">';
+    h += '<div class="bubble">' + formatMsg(m.text) + '</div></div>';
+  });
+  if (messages.length === 0) {
+    h = '<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text3);text-align:center;padding:40px 20px">';
+    h += '<div style="font-size:32px;margin-bottom:12px">&#x1F4AD;</div>';
+    h += '<div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px">Brain Dump</div>';
+    h += '<div style="font-size:13px;line-height:1.6">\uC0DD\uAC01\uB098\uB294 \uAC70 \uC544\uBB34\uAC70\uB098 \uB358\uC838\uBD10.<br>\uD14D\uC2A4\uD2B8\uB4E0 \uC74C\uC131\uC774\uB4E0.</div>';
+    h += '</div>';
+  }
+  chatEl.innerHTML = h;
+  chatEl.scrollTop = chatEl.scrollHeight;
+}
+
+function formatMsg(text) {
+  const actionMatch = text.match(/\[ACTION:(.*?)\]/g);
+  if (!actionMatch) return esc(text);
+  let out = text;
+  actionMatch.forEach(a => {
+    try {
+      const json = JSON.parse(a.replace('[ACTION:', '').replace(']', ''));
+      let card = '<div class="action-card">';
+      const typeLabels = {
+        task: '\u2713 \uD0DC\uC2A4\uD06C \uC0DD\uC131', add: '\u2713 \uD0DC\uC2A4\uD06C \uCD94\uAC00',
+        check: '\u2705 \uC644\uB8CC \uCC98\uB9AC', done: '\u2705 \uC644\uB8CC \uCC98\uB9AC',
+        uncheck: '\u21A9 \uC644\uB8CC \uD574\uC81C',
+        remind: '\u23F0 \uB9AC\uB9C8\uC778\uB354', note: '\uD83D\uDCDD \uBA54\uBAA8',
+        query: '\uD83D\uDCAC \uC751\uB2F5', report: '\uD83D\uDCCA \uB9AC\uD3EC\uD2B8',
+        update: '\u270F\uFE0F \uC218\uC815', schedule: '\uD83D\uDCC5 \uC77C\uC815 \uBCC0\uACBD',
+        prioritize: '\uD83D\uDD25 \uC6B0\uC120\uC21C\uC704 \uBCC0\uACBD',
+      };
+      const label = typeLabels[json.type] || json.type;
+      card += '<div class="ac-type ac-' + json.type + '">' + label + '</div>';
+      card += '<div class="ac-name">' + esc(json.name || json.message || json.response || '') + '</div>';
+      if (json.detail) card += '<div class="ac-detail">' + esc(json.detail) + '</div>';
+      card += '</div>';
+      out = out.replace(a, card);
+    } catch (e) { out = out.replace(a, ''); }
+  });
+  return out.replace(/\n/g, '<br>');
+}
+
+function showTypingIndicator() {
+  const el = document.createElement('div');
+  el.className = 'msg-row ai typing-indicator';
+  el.id = 'typingIndicator';
+  el.innerHTML = '<div class="bubble"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
+  chatEl.appendChild(el);
+  chatEl.scrollTop = chatEl.scrollHeight;
+}
+
+function hideTypingIndicator() {
+  const el = document.getElementById('typingIndicator');
+  if (el) el.remove();
+}
+
+// ===== FORMAT BACKEND ACTIONS TO CHAT =====
+function formatActionsToChat(actions) {
+  let text = '';
+  for (const a of actions) {
+    switch (a.action) {
+      case 'check':
+        text += '\n[ACTION:{"type":"check","name":"' + esc(a.task_name || '') + '","detail":"\uC644\uB8CC \uCC98\uB9AC\uB428"}]';
+        break;
+      case 'uncheck':
+        text += '\n[ACTION:{"type":"uncheck","name":"' + esc(a.task_name || '') + '","detail":"\uC644\uB8CC \uD574\uC81C\uB428"}]';
+        break;
+      case 'add':
+        text += '\n[ACTION:{"type":"add","name":"' + esc(a.task_name || '') + '","detail":"\uD0DC\uC2A4\uD06C \uCD94\uAC00\uB428"}]';
+        break;
+      case 'update':
+        text += '\n[ACTION:{"type":"update","name":"' + esc(a.task_name || '') + '","detail":"' + esc(a.note || '\uC218\uC815\uB428') + '"}]';
+        break;
+      case 'schedule':
+        text += '\n[ACTION:{"type":"schedule","name":"' + esc(a.task_name || '') + '","detail":"Day ' + (a.day || '') + ' \uC73C\uB85C \uBCC0\uACBD"}]';
+        break;
+      case 'prioritize':
+        text += '\n[ACTION:{"type":"prioritize","name":"' + esc(a.task_name || '') + '","detail":"' + esc(a.priority || '') + ' \uC73C\uB85C \uBCC0\uACBD"}]';
+        break;
+      case 'remind':
+        text += '\n[ACTION:{"type":"remind","message":"' + esc(a.message || '') + '","detail":"' + esc(a.remind_at || '') + '"}]';
+        break;
+      case 'query':
+        text += '\n[ACTION:{"type":"query","response":"' + esc(a.response || '') + '"}]';
+        break;
+      case 'report':
+        text += '\n[ACTION:{"type":"report","response":"' + esc(a.response || '') + '"}]';
+        break;
+      case 'note':
+        text += '\n[ACTION:{"type":"note","name":"' + esc(a.note || '') + '","detail":"\uBA54\uBAA8 \uC800\uC7A5\uB428"}]';
+        break;
+      case 'commit':
+        text += '\n[ACTION:{"type":"done","name":"' + esc(a.task_name || '') + ' \uC57D\uC18D!","detail":"\uB9C8\uAC10: ' + esc(a.deadline || '') + (a.stake ? ' / \uC2A4\uD14C\uC774\uD06C: ' + esc(a.stake) : '') + '"}]';
+        break;
+      default:
+        text += '\n[ACTION:{"type":"' + a.action + '","name":"' + esc(JSON.stringify(a)) + '"}]';
     }
   }
+  return text;
+}
 
-  // General brain dump - just store as note
-  if(text.length>5){
-    // Try to extract actionable items
-    const items=text.split(/[,.\n그리고]+/).map(s=>s.trim()).filter(s=>s.length>3);
-    if(items.length>=2){
-      let resp='정리했어. '+items.length+'개 잡았다.\n';
-      items.forEach(item=>{
-        resp+='\n[ACTION:{"type":"task","name":"'+esc(item.substring(0,30))+'","detail":"브레인덤프에서 추출"}]';
-      });
-      return resp;
+// ===== SEND MESSAGE (Real AI Agent) =====
+async function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text || isSending) return;
+  input.value = '';
+  input.style.height = '42px';
+  isSending = true;
+
+  messages.push({role: 'user', text, time: Date.now()});
+  renderChat();
+  showTypingIndicator();
+
+  try {
+    const resp = await fetch(API_BASE + '/voice/text', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text }),
+    });
+    const data = await resp.json();
+    hideTypingIndicator();
+
+    if (resp.ok && data.actions_taken) {
+      // Zeigarnik Effect: "All captured" confirmation
+      const actionCount = data.actions_taken.length;
+      const prefix = actionCount > 1 ? '\uCC98\uB9AC\uD588\uC5B4. ' + actionCount + '\uAC1C \uBAA8\uB450 \uC7A1\uC558\uC5B4!' : '\uCC98\uB9AC\uD588\uC5B4.';
+      const aiText = prefix + formatActionsToChat(data.actions_taken);
+      messages.push({role: 'ai', text: aiText, time: Date.now()});
+      // Track streak
+      updateStreak();
+    } else {
+      messages.push({role: 'ai', text: data.error || '\uCC98\uB9AC \uC911 \uC624\uB958\uAC00 \uBC1C\uC0DD\uD588\uC5B4.', time: Date.now()});
     }
-    return '메모했어.\n[ACTION:{"type":"note","name":"'+esc(text.substring(0,40))+(text.length>40?'...':'')+'","detail":"'+new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})+' 기록"}]';
+
+    localStorage.setItem('mc3_chat', JSON.stringify(messages));
+    renderChat();
+    await fetchTasks();
+  } catch (e) {
+    hideTypingIndicator();
+    messages.push({role: 'ai', text: '\uC11C\uBC84 \uC5F0\uACB0 \uC2E4\uD328. \uB2E4\uC2DC \uC2DC\uB3C4\uD574\uC918.', time: Date.now()});
+    localStorage.setItem('mc3_chat', JSON.stringify(messages));
+    renderChat();
+  } finally {
+    isSending = false;
   }
-
-  return '뭐든 말해봐. 할 일, 생각, 리마인더 — 다 던져도 돼.';
 }
 
-function handleKey(e){
-  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
 }
-function autoGrow(el){
-  el.style.height='42px';
-  el.style.height=Math.min(el.scrollHeight,120)+'px';
+function autoGrow(el) {
+  el.style.height = '42px';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
 }
-function toggleMic(){
-  document.getElementById('micBtn').classList.toggle('recording');
-  toast('음성 입력은 서버 연결 후 사용 가능');
-  setTimeout(()=>document.getElementById('micBtn').classList.remove('recording'),1500);
+
+// ===== VOICE RECORDING (Real MediaRecorder) =====
+async function startVoiceRecording() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({audio: true});
+    audioChunks = [];
+    mediaRecorder = new MediaRecorder(stream);
+    mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
+    mediaRecorder.onstop = () => { stream.getTracks().forEach(t => t.stop()); };
+    mediaRecorder.start();
+    document.getElementById('micBtn').classList.add('recording');
+  } catch (e) {
+    toast('\uB9C8\uC774\uD06C \uAD8C\uD55C\uC774 \uD544\uC694\uD569\uB2C8\uB2E4');
+  }
+}
+
+async function stopVoiceRecording() {
+  if (!mediaRecorder || mediaRecorder.state !== 'recording') return;
+  document.getElementById('micBtn').classList.remove('recording');
+
+  mediaRecorder.stop();
+  await new Promise(r => mediaRecorder.addEventListener('stop', r, {once: true}));
+
+  const blob = new Blob(audioChunks, {type: 'audio/webm'});
+  audioChunks = [];
+
+  // Show user message as "voice recording"
+  messages.push({role: 'user', text: '\uD83C\uDFA4 \uC74C\uC131 \uC785\uB825 \uCC98\uB9AC \uC911...', time: Date.now()});
+  renderChat();
+  showTypingIndicator();
+
+  const formData = new FormData();
+  formData.append('audio', blob, 'recording.webm');
+
+  try {
+    const resp = await fetch(API_BASE + '/voice/upload', {method: 'POST', body: formData});
+    const data = await resp.json();
+    hideTypingIndicator();
+
+    if (resp.ok) {
+      // Update user message with actual transcript
+      messages[messages.length - 1].text = data.transcript || '\uD83C\uDFA4 (\uC74C\uC131)';
+
+      if (data.actions_taken) {
+        const aiText = '\uCC98\uB9AC\uD588\uC5B4.' + formatActionsToChat(data.actions_taken);
+        messages.push({role: 'ai', text: aiText, time: Date.now()});
+      }
+
+      localStorage.setItem('mc3_chat', JSON.stringify(messages));
+      renderChat();
+      await fetchTasks();
+    } else {
+      toast(data.error || '\uC74C\uC131 \uCC98\uB9AC \uC2E4\uD328');
+    }
+  } catch (e) {
+    hideTypingIndicator();
+    toast('\uC74C\uC131 \uC804\uC1A1 \uC2E4\uD328');
+  }
+  mediaRecorder = null;
+}
+
+function toggleMic() {
+  if (mediaRecorder && mediaRecorder.state === 'recording') {
+    stopVoiceRecording();
+  } else {
+    startVoiceRecording();
+  }
 }
 
 // ===== TASKS =====
-function setFilter(f,el){
-  filter=f;
-  document.querySelectorAll('.fpill').forEach(p=>p.classList.remove('active'));
-  if(el) el.classList.add('active');
+function setFilter(f, el) {
+  filter = f;
+  document.querySelectorAll('.fpill').forEach(p => p.classList.remove('active'));
+  if (el) el.classList.add('active');
   renderTasks();
 }
 
-function renderFilters(){
-  const pills=[
-    {k:'all',l:'All'},
-    {k:'즉시',l:'Urgent'},{k:'단기',l:'Short'},{k:'중기',l:'Mid'},{k:'장기',l:'Long'},
+function renderFilters() {
+  const pills = [
+    {k:'all', l:'All'},
+    {k:'\uC989\uC2DC', l:'Urgent'}, {k:'\uB2E8\uAE30', l:'Short'}, {k:'\uC911\uAE30', l:'Mid'}, {k:'\uC7A5\uAE30', l:'Long'},
   ];
-  document.getElementById('filters').innerHTML=pills.map(p=>
-    '<div class="fpill'+(filter===p.k?' active':'')+'" onclick="setFilter(\''+p.k+'\',this)">'+p.l+'</div>'
+  document.getElementById('filters').innerHTML = pills.map(p =>
+    '<div class="fpill' + (filter === p.k ? ' active' : '') + '" onclick="setFilter(\'' + p.k + '\',this)">' + p.l + '</div>'
   ).join('');
 }
 
-function renderStats(){
-  const done=TASKS.filter(t=>isDone(t.id)).length;
-  const total=TASKS.length;
-  const pct=Math.round(done/total*100);
-  const urgent=TASKS.filter(t=>t.pri==='즉시'&&!isDone(t.id)).length;
-  document.getElementById('statsBar').innerHTML=
-    '<div class="stat-item"><div class="stat-val">'+pct+'%</div><div class="stat-label">Done</div></div>'
-    +'<div class="stat-item"><div class="stat-val" style="color:var(--red)">'+urgent+'</div><div class="stat-label">Urgent</div></div>'
-    +'<div class="stat-item"><div class="stat-val" style="color:var(--green)">'+done+'</div><div class="stat-label">Complete</div></div>'
-    +'<div class="stat-item"><div class="stat-val">'+total+'</div><div class="stat-label">Total</div></div>';
+function renderStats() {
+  const done = tasks.filter(t => t.done).length;
+  const total = tasks.length;
+  const pct = total ? Math.round(done / total * 100) : 0;
+  const urgent = tasks.filter(t => t.pri === '\uC989\uC2DC' && !t.done).length;
+  document.getElementById('statsBar').innerHTML =
+    '<div class="stat-item"><div class="stat-val">' + pct + '%</div><div class="stat-label">Done</div></div>'
+    + '<div class="stat-item"><div class="stat-val" style="color:var(--red)">' + urgent + '</div><div class="stat-label">Urgent</div></div>'
+    + '<div class="stat-item"><div class="stat-val" style="color:var(--green)">' + done + '</div><div class="stat-label">Complete</div></div>'
+    + '<div class="stat-item"><div class="stat-val">' + total + '</div><div class="stat-label">Total</div></div>';
 }
 
-function renderTasks(){
-  let list=TASKS.map(t=>({...t,done:isDone(t.id)}));
-  if(filter!=='all'){
-    if(['즉시','단기','중기','장기'].includes(filter)) list=list.filter(t=>t.pri===filter);
-    else list=list.filter(t=>t.cat===filter);
+function renderTasks() {
+  let list = [...tasks];
+  if (filter !== 'all') {
+    if (['\uC989\uC2DC', '\uB2E8\uAE30', '\uC911\uAE30', '\uC7A5\uAE30'].includes(filter)) list = list.filter(t => t.pri === filter);
+    else list = list.filter(t => t.cat === filter);
   }
 
-  const groups={'즉시':[],'단기':[],'중기':[],'장기':[]};
-  list.forEach(t=>{if(groups[t.pri]) groups[t.pri].push(t)});
-  const labels={'즉시':'Urgent','단기':'Short-term','중기':'Mid-term','장기':'Long-term'};
+  const groups = {'\uC989\uC2DC': [], '\uB2E8\uAE30': [], '\uC911\uAE30': [], '\uC7A5\uAE30': []};
+  list.forEach(t => { if (groups[t.pri]) groups[t.pri].push(t); });
+  const labels = {'\uC989\uC2DC': 'Urgent', '\uB2E8\uAE30': 'Short-term', '\uC911\uAE30': 'Mid-term', '\uC7A5\uAE30': 'Long-term'};
 
-  let h='';
-  for(const [pri,items] of Object.entries(groups)){
-    if(items.length===0) continue;
-    const dc=items.filter(t=>t.done).length;
-    // Sort: undone first
-    items.sort((a,b)=>a.done-b.done);
-    h+='<div class="pri-section"><div class="pri-head">';
-    h+='<div class="pri-dot" style="background:'+PRI_COLOR[pri]+'"></div>';
-    h+='<div class="pri-label">'+labels[pri]+'</div>';
-    h+='<div class="pri-count">'+dc+'/'+items.length+'</div></div>';
-    items.forEach((t,i)=>{
-      const dur=t.dur?(t.dur>=60?Math.round(t.dur/60)+'h':t.dur+'m'):'';
-      h+='<div class="t-item '+(t.done?'done':'')+'" style="animation-delay:'+(i*.03)+'s" onclick="toggle('+t.id+')">';
-      h+='<div class="t-chk '+(t.done?'done':'')+'"></div>';
-      h+='<div class="t-body"><div class="t-name">'+esc(t.name)+'</div>';
-      if(t.sub) h+='<div class="t-sub">'+esc(t.sub)+'</div>';
-      h+='<div class="t-meta"><span class="t-badge '+CAT_BADGE[t.cat]+'">'+CAT_LABEL[t.cat]+'</span></div>';
-      h+='</div>';
-      if(dur) h+='<div class="t-dur">'+dur+'</div>';
-      h+='</div>';
+  let h = '';
+  for (const [pri, items] of Object.entries(groups)) {
+    if (items.length === 0) continue;
+    const dc = items.filter(t => t.done).length;
+    items.sort((a, b) => a.done - b.done);
+    h += '<div class="pri-section"><div class="pri-head">';
+    h += '<div class="pri-dot" style="background:' + PRI_COLOR[pri] + '"></div>';
+    h += '<div class="pri-label">' + labels[pri] + '</div>';
+    h += '<div class="pri-count">' + dc + '/' + items.length + '</div></div>';
+    items.forEach((t, i) => {
+      const dur = t.dur ? (t.dur >= 60 ? Math.round(t.dur / 60) + 'h' : t.dur + 'm') : '';
+      h += '<div class="t-item ' + (t.done ? 'done' : '') + '" style="animation-delay:' + (i * .03) + 's" onclick="toggle(' + t.id + ')">';
+      h += '<div class="t-chk ' + (t.done ? 'done' : '') + '"></div>';
+      h += '<div class="t-body"><div class="t-name">' + esc(t.name) + '</div>';
+      if (t.sub) h += '<div class="t-sub">' + esc(t.sub) + '</div>';
+      h += '<div class="t-meta"><span class="t-badge ' + (CAT_BADGE[t.cat] || '') + '">' + (CAT_LABEL[t.cat] || t.cat) + '</span>';
+      // Tiny Habits: break-it-down button for large tasks
+      if (!t.done && t.dur && t.dur >= 60) h += '<button class="t-break" onclick="breakItDown(' + t.id + ',event)">Break down</button>';
+      h += '</div>';
+      h += '</div>';
+      if (dur) h += '<div class="t-dur">' + dur + '</div>';
+      h += '</div>';
     });
-    h+='</div>';
+    h += '</div>';
   }
-  document.getElementById('tasksList').innerHTML=h;
+  document.getElementById('tasksList').innerHTML = h;
 }
 
-// ===== INSIGHTS =====
-function renderInsights(){
-  const done=TASKS.filter(t=>isDone(t.id)).length;
-  const total=TASKS.length;
-  const urgent=TASKS.filter(t=>t.pri==='즉시'&&!isDone(t.id)).length;
-  const cats={content:0,auto:0,growth:0,infra:0};
-  const catDone={content:0,auto:0,growth:0,infra:0};
-  TASKS.forEach(t=>{cats[t.cat]++;if(isDone(t.id))catDone[t.cat]++});
-
-  let h='<div class="ins-title">Insights</div>';
-
-  // Smart recommendations
-  h+='<div class="ins-card"><div class="ins-icon">🎯</div><div class="ins-head">오늘의 추천</div>';
-  if(urgent>5) h+='즉시 실행 태스크가 <span class="ins-highlight">'+urgent+'개</span> 남아있어요. 가장 짧은 것부터 해치워보는 건 어때요?';
-  else if(urgent>0) h+='즉시 실행 '+urgent+'개만 끝내면 이번 주 핵심은 클리어!';
-  else h+='즉시 실행 태스크를 모두 완료했어요! 🎉';
-  h+='</div>';
-
-  h+='<div class="ins-card"><div class="ins-icon">📊</div><div class="ins-head">진행 현황</div>';
-  h+='전체 '+total+'개 중 <span class="ins-highlight">'+done+'개 완료</span> ('+Math.round(done/total*100)+'%)<br>';
-  h+='Content: '+catDone.content+'/'+cats.content+' · Auto: '+catDone.auto+'/'+cats.auto+'<br>';
-  h+='Growth: '+catDone.growth+'/'+cats.growth+' · Infra: '+catDone.infra+'/'+cats.infra;
-  h+='</div>';
-
-  // Pattern insight
-  h+='<div class="ins-card"><div class="ins-icon">💡</div><div class="ins-head">패턴 분석</div>';
-  const autoCount=cats.auto;
-  const contentCount=cats.content;
-  if(autoCount>contentCount) h+='자동화 태스크('+autoCount+'개)가 콘텐츠('+contentCount+'개)보다 많아요. 자동화 우선 처리하면 콘텐츠 작업 시간이 줄어들어요.';
-  else h+='콘텐츠 태스크('+contentCount+'개)가 가장 많아요. 갓템홈 개선에 집중하면 평균 재생 목표에 가장 빠르게 도달할 수 있어요.';
-  h+='</div>';
-
-  // Nudge for skipped urgent
-  if(urgent>3){
-    h+='<div class="ins-card" style="border-left:3px solid var(--red);background:#fef2f2"><div class="ins-icon">⚠️</div><div class="ins-head">3일째 미루는 태스크</div>';
-    const skipped=TASKS.filter(t=>t.pri==='즉시'&&!isDone(t.id)&&t.day&&t.day<=2);
-    if(skipped.length>0) h+=skipped.map(t=>'<span class="ins-highlight">'+esc(t.name)+'</span>').join(', ')+' — 더 작게 쪼개볼까요?';
-    else h+='즉시 실행 태스크 중 일부가 계속 밀리고 있어요. 오늘 딱 1개만 골라서 해치워보세요.';
-    h+='</div>';
+// ===== INSIGHTS (Phase 2: Real stats from API) =====
+async function renderInsights() {
+  // First render with local task data (instant)
+  renderInsightsFromLocal();
+  // Then fetch real stats from API (async, no AI cost)
+  try {
+    const stats = await apiFetch('/report/stats');
+    renderInsightsFromStats(stats);
+  } catch (e) {
+    // Local render is already showing, just log
+    console.error('Failed to fetch stats:', e);
   }
+}
+
+function renderInsightsFromLocal() {
+  const done = tasks.filter(t => t.done).length;
+  const total = tasks.length;
+  const pct = total ? Math.round(done / total * 100) : 0;
+  const urgent = tasks.filter(t => t.pri === '\uC989\uC2DC' && !t.done).length;
+  const cats = {content: 0, auto: 0, growth: 0, infra: 0};
+  const catDone = {content: 0, auto: 0, growth: 0, infra: 0};
+  tasks.forEach(t => { cats[t.cat] = (cats[t.cat] || 0) + 1; if (t.done) catDone[t.cat] = (catDone[t.cat] || 0) + 1; });
+
+  let h = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">';
+  h += '<div class="ins-title" style="margin-bottom:0">Insights</div>';
+  h += '<button class="ins-refresh" onclick="refreshAIInsights(this)">Refresh AI</button>';
+  h += '</div>';
+
+  h += buildInsightCards(total, done, pct, urgent, cats, catDone);
 
   // Objectives
-  h+='<div style="margin-top:20px"><div class="ins-title">Objectives</div>';
-  h+='<div class="obj-mini"><div class="obj-mini-top"><div class="obj-mini-name">월 수익 10M</div><div class="obj-mini-pct">0%</div></div><div class="obj-mini-bar"><div class="obj-mini-fill" style="width:0%"></div></div></div>';
-  h+='<div class="obj-mini"><div class="obj-mini-top"><div class="obj-mini-name">평균 재생 15K+</div><div class="obj-mini-pct">0%</div></div><div class="obj-mini-bar"><div class="obj-mini-fill" style="width:0%"></div></div></div>';
-  h+='<div class="obj-mini"><div class="obj-mini-top"><div class="obj-mini-name">다국어 파일럿</div><div class="obj-mini-pct">0%</div></div><div class="obj-mini-bar"><div class="obj-mini-fill" style="width:0%"></div></div></div>';
-  h+='</div>';
+  h += '<div style="margin-top:20px"><div class="ins-title">Objectives</div>';
+  h += '<div id="objectivesList"><div style="color:var(--text3);font-size:12px">Loading...</div></div>';
+  h += '</div>';
 
-  document.getElementById('insightsContent').innerHTML=h;
+  // AI insights container
+  h += '<div style="margin-top:20px"><div class="ins-title">AI Insights</div>';
+  h += '<div id="aiInsightsContainer"><div style="color:var(--text3);font-size:12px">Press "Refresh AI" to generate</div></div>';
+  h += '</div>';
+
+  document.getElementById('insightsContent').innerHTML = h;
+  loadObjectives();
+}
+
+function renderInsightsFromStats(stats) {
+  const total = stats.total;
+  const done = stats.done;
+  const pct = stats.percent;
+  const urgent = stats.by_priority['\uC989\uC2DC'] ? stats.by_priority['\uC989\uC2DC'].total - stats.by_priority['\uC989\uC2DC'].done : 0;
+  const cats = {};
+  const catDone = {};
+  for (const [k, v] of Object.entries(stats.by_category || {})) { cats[k] = v.total; catDone[k] = v.done; }
+
+  // Update just the stats cards, preserve AI insights and objectives
+  const container = document.getElementById('insightsContent');
+  if (!container) return;
+
+  let h = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">';
+  h += '<div class="ins-title" style="margin-bottom:0">Insights</div>';
+  h += '<button class="ins-refresh" onclick="refreshAIInsights(this)">Refresh AI</button>';
+  h += '</div>';
+
+  h += buildInsightCards(total, done, pct, urgent, cats, catDone);
+
+  // Objectives from stats
+  h += '<div style="margin-top:20px"><div class="ins-title">Objectives</div>';
+  h += '<div id="objectivesList"></div></div>';
+
+  // Preserve AI insights
+  const existingAI = document.getElementById('aiInsightsContainer');
+  const aiHTML = existingAI ? existingAI.innerHTML : '<div style="color:var(--text3);font-size:12px">Press "Refresh AI" to generate</div>';
+  h += '<div style="margin-top:20px"><div class="ins-title">AI Insights</div>';
+  h += '<div id="aiInsightsContainer">' + aiHTML + '</div></div>';
+
+  container.innerHTML = h;
+
+  // Render objectives from stats response
+  const objectives = stats.objectives || [];
+  let objH = '';
+  if (objectives.length === 0) {
+    objH = '<div style="color:var(--text3);font-size:12px">No objectives set</div>';
+  } else {
+    objectives.forEach(obj => {
+      const pctVal = obj.target ? Math.round((obj.current || 0) / obj.target * 100) : 0;
+      objH += '<div class="obj-mini" onclick="promptObjectiveUpdate(\'' + obj.id + '\')" style="cursor:pointer">';
+      objH += '<div class="obj-mini-top"><div class="obj-mini-name">' + esc(obj.title) + '</div>';
+      objH += '<div class="obj-mini-pct">' + pctVal + '%</div></div>';
+      objH += '<div class="obj-mini-bar"><div class="obj-mini-fill" style="width:' + Math.min(pctVal, 100) + '%"></div></div>';
+      objH += '</div>';
+    });
+  }
+  const objEl = document.getElementById('objectivesList');
+  if (objEl) objEl.innerHTML = objH;
+}
+
+function buildInsightCards(total, done, pct, urgent, cats, catDone) {
+  let h = '';
+
+  // Quick Win nudge
+  h += '<div class="ins-card"><div class="ins-icon">\uD83C\uDFAF</div><div class="ins-head">\uC624\uB298\uC758 \uCD94\uCC9C</div>';
+  if (urgent > 5) {
+    const quickWin = tasks.filter(t => t.pri === '\uC989\uC2DC' && !t.done && t.dur).sort((a, b) => a.dur - b.dur)[0];
+    if (quickWin) h += 'Quick Win: <span class="ins-highlight">' + esc(quickWin.name) + '</span> (' + quickWin.dur + '\uBD84) \uBD80\uD130 \uD574\uBCF4\uB294 \uAC74 \uC5B4\uB54C\uC694?';
+    else h += '\uC989\uC2DC \uC2E4\uD589 \uD0DC\uC2A4\uD06C\uAC00 <span class="ins-highlight">' + urgent + '\uAC1C</span> \uB0A8\uC544\uC788\uC5B4\uC694.';
+  } else if (urgent > 0) h += '\uC989\uC2DC \uC2E4\uD589 ' + urgent + '\uAC1C\uB9CC \uB05D\uB0B4\uBA74 \uC774\uBC88 \uC8FC \uD575\uC2EC\uC740 \uD074\uB9AC\uC5B4!';
+  else h += '\uC989\uC2DC \uC2E4\uD589 \uD0DC\uC2A4\uD06C\uB97C \uBAA8\uB450 \uC644\uB8CC\uD588\uC5B4\uC694! \uD83C\uDF89';
+  h += '</div>';
+
+  // Progress
+  h += '<div class="ins-card"><div class="ins-icon">\uD83D\uDCCA</div><div class="ins-head">\uC9C4\uD589 \uD604\uD669</div>';
+  h += '\uC804\uCCB4 ' + total + '\uAC1C \uC911 <span class="ins-highlight">' + done + '\uAC1C \uC644\uB8CC</span> (' + pct + '%)<br>';
+  h += 'Content: ' + (catDone.content || 0) + '/' + (cats.content || 0) + ' \u00B7 Auto: ' + (catDone.auto || 0) + '/' + (cats.auto || 0) + '<br>';
+  h += 'Growth: ' + (catDone.growth || 0) + '/' + (cats.growth || 0) + ' \u00B7 Infra: ' + (catDone.infra || 0) + '/' + (cats.infra || 0);
+  h += '</div>';
+
+  // Pattern
+  const autoCount = cats.auto || 0;
+  const contentCount = cats.content || 0;
+  h += '<div class="ins-card"><div class="ins-icon">\uD83D\uDCA1</div><div class="ins-head">\uD328\uD134 \uBD84\uC11D</div>';
+  if (autoCount > contentCount) h += '\uC790\uB3D9\uD654 \uD0DC\uC2A4\uD06C(' + autoCount + '\uAC1C)\uAC00 \uCF58\uD150\uCE20(' + contentCount + '\uAC1C)\uBCF4\uB2E4 \uB9CE\uC544\uC694. \uC790\uB3D9\uD654 \uC6B0\uC120 \uCC98\uB9AC\uD558\uBA74 \uCF58\uD150\uCE20 \uC791\uC5C5 \uC2DC\uAC04\uC774 \uC904\uC5B4\uB4E4\uC5B4\uC694.';
+  else h += '\uCF58\uD150\uCE20 \uD0DC\uC2A4\uD06C(' + contentCount + '\uAC1C)\uAC00 \uAC00\uC7A5 \uB9CE\uC544\uC694. \uAC13\uD15C\uD648 \uAC1C\uC120\uC5D0 \uC9D1\uC911\uD558\uBA74 \uD3C9\uADE0 \uC7AC\uC0DD \uBAA9\uD45C\uC5D0 \uAC00\uC7A5 \uBE68\uB9AC \uB3C4\uB2EC\uD560 \uC218 \uC788\uC5B4\uC694.';
+  h += '</div>';
+
+  // Loss aversion: overdue urgent
+  if (urgent > 3) {
+    h += '<div class="ins-card" style="border-left:3px solid var(--red);background:#fef2f2"><div class="ins-icon">\u26A0\uFE0F</div><div class="ins-head">Momentum at risk</div>';
+    const skipped = tasks.filter(t => t.pri === '\uC989\uC2DC' && !t.done && t.day && t.day <= 2);
+    if (skipped.length > 0) h += skipped.map(t => '<span class="ins-highlight">' + esc(t.name) + '</span>').join(', ') + ' \u2014 \uB354 \uC791\uAC8C \uCABC\uAC1C\uBCFC\uAE4C\uC694?';
+    else h += '\uC989\uC2DC \uC2E4\uD589 \uD0DC\uC2A4\uD06C \uC911 \uC77C\uBD80\uAC00 \uACC4\uC18D \uBC00\uB9AC\uACE0 \uC788\uC5B4\uC694. \uC624\uB298 \uB531 1\uAC1C\uB9CC \uACE8\uB77C\uC11C \uD574\uCE58\uC6CC\uBCF4\uC138\uC694.';
+    h += '</div>';
+  }
+
+  // BJ Fogg B=MAP: ability check for large tasks
+  const bigTasks = tasks.filter(t => !t.done && t.dur && t.dur >= 60);
+  if (bigTasks.length > 0) {
+    h += '<div class="ins-card" style="border-left:3px solid var(--blue);background:#eff6ff"><div class="ins-icon">\uD83E\uDDE9</div><div class="ins-head">Too big to start?</div>';
+    h += bigTasks.slice(0, 3).map(t =>
+      '<span class="ins-highlight">' + esc(t.name) + '</span> (' + t.dur + '\uBD84)'
+    ).join(', ');
+    h += ' \u2014 \uD0DC\uC2A4\uD06C \uC606\uC758 "Break down" \uBC84\uD2BC\uC73C\uB85C \uC791\uAC8C \uCABC\uAC1C\uBCF4\uB294 \uAC74 \uC5B4\uB54C\uC694?';
+    h += '</div>';
+  }
+
+  // Hooked Model: investment tracking
+  const dumpCount = messages.filter(m => m.role === 'user').length;
+  h += '<div class="ins-card"><div class="ins-icon">\uD83D\uDCC8</div><div class="ins-head">Your Investment</div>';
+  h += '<span class="ins-highlight">' + completedCount + '</span> tasks completed \u00B7 ';
+  h += '<span class="ins-highlight">' + dumpCount + '</span> brain dumps';
+  const streak = parseInt(localStorage.getItem('mc_streak') || '0');
+  if (streak > 1) h += ' \u00B7 <span class="ins-highlight">' + streak + ' day</span> streak';
+  h += '</div>';
+
+  return h;
+}
+
+// AI Insights (on-demand, costs tokens)
+async function refreshAIInsights(btn) {
+  if (btn) { btn.disabled = true; btn.textContent = 'Loading...'; }
+  const container = document.getElementById('aiInsightsContainer');
+  if (container) container.innerHTML = '<div style="color:var(--text3);font-size:12px">Generating insights...</div>';
+
+  try {
+    const data = await apiFetch('/report/insights');
+    let h = '';
+    (data.insights || []).forEach(ins => {
+      h += '<div class="ins-card"><div class="ins-icon">' + (ins.icon || '\uD83D\uDCA1') + '</div>';
+      h += '<div class="ins-head">' + esc(ins.title) + '</div>';
+      h += esc(ins.body) + '</div>';
+    });
+    if (container) container.innerHTML = h || '<div style="color:var(--text3);font-size:12px">No insights</div>';
+  } catch (e) {
+    if (container) container.innerHTML = '<div style="color:var(--text3);font-size:12px">Failed: ' + esc(e.message) + '</div>';
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Refresh AI'; }
+  }
+}
+
+// Objective progress update
+async function promptObjectiveUpdate(objId) {
+  const newVal = prompt('Enter current value:');
+  if (newVal === null || newVal === '') return;
+  const num = parseFloat(newVal);
+  if (isNaN(num)) { toast('Invalid number'); return; }
+  try {
+    await apiFetch('/objectives/' + objId, {
+      method: 'PATCH',
+      body: JSON.stringify({ current: num }),
+    });
+    toast('Updated!');
+    renderInsights();
+  } catch (e) {
+    toast('Failed to update');
+  }
+}
+
+async function loadObjectives() {
+  try {
+    const data = await apiFetch('/objectives');
+    const objectives = data.objectives || [];
+    let h = '';
+    if (objectives.length === 0) {
+      h = '<div style="color:var(--text3);font-size:12px">No objectives set</div>';
+    } else {
+      objectives.forEach(obj => {
+        const pct = obj.target ? Math.round((obj.current || 0) / obj.target * 100) : 0;
+        h += '<div class="obj-mini" onclick="promptObjectiveUpdate(\'' + obj.id + '\')" style="cursor:pointer">';
+        h += '<div class="obj-mini-top"><div class="obj-mini-name">' + esc(obj.title) + '</div>';
+        h += '<div class="obj-mini-pct">' + pct + '%</div></div>';
+        h += '<div class="obj-mini-bar"><div class="obj-mini-fill" style="width:' + Math.min(pct, 100) + '%"></div></div>';
+        h += '</div>';
+      });
+    }
+    const el = document.getElementById('objectivesList');
+    if (el) el.innerHTML = h;
+  } catch (e) {
+    const el = document.getElementById('objectivesList');
+    if (el) el.innerHTML = '<div style="color:var(--text3);font-size:12px">Failed to load</div>';
+  }
 }
 
 // ===== UTILS =====
-function toast(msg){
-  const t=document.getElementById('toast');
-  t.textContent=msg;t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),1600);
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1600);
 }
-function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+// Streak tracking (Hooked Model: investment)
+function updateStreak() {
+  const today = new Date().toISOString().split('T')[0];
+  const lastActive = localStorage.getItem('mc_lastActive');
+  let streak = parseInt(localStorage.getItem('mc_streak') || '0');
+  if (lastActive === today) return; // Already counted today
+  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+  if (lastActive === yesterday) {
+    streak++;
+  } else if (lastActive !== today) {
+    streak = 1;
+  }
+  localStorage.setItem('mc_streak', streak);
+  localStorage.setItem('mc_lastActive', today);
+}
 
 // ===== INIT =====
-// Seed demo conversation if empty
-if(messages.length===0){
-  messages=[
-    {role:'user',text:'내일 뷰티 카테고리 테스트 해봐야겠다. 그리고 ManyChat 결제 까먹기 전에 내일 아침에 알려줘.',time:Date.now()-60000*30},
-    {role:'ai',text:'잡았어.\n[ACTION:{"type":"task","name":"뷰티 카테고리 테스트","detail":"즉시 · 갓템홈 개선"}]\n[ACTION:{"type":"remind","name":"ManyChat Pro 결제","detail":"내일 아침 9시 알림"}]',time:Date.now()-60000*29},
-    {role:'user',text:'아 그리고 hehe_home_tem 채널 분석 좀 해야되는데, 영상 패턴이랑 썸네일 스타일 정리해놓자',time:Date.now()-60000*15},
-    {role:'ai',text:'메모했어.\n[ACTION:{"type":"task","name":"hehe_home_tem 채널 분석","detail":"영상 패턴 + 썸네일 스타일 정리"}]',time:Date.now()-60000*14},
-    {role:'user',text:'인포크 셀레니움 배포 했어',time:Date.now()-60000*5},
-    {role:'ai',text:'처리했어! [ACTION:{"type":"done","name":"인포크 셀레니움 배포","detail":"완료 처리됨"}]',time:Date.now()-60000*4},
-  ];
-  localStorage.setItem('mc3_chat',JSON.stringify(messages));
-}
+(async function init() {
+  renderChat();
+  renderFilters();
 
-renderChat();
-renderFilters();
-renderStats();
-renderTasks();
-renderInsights();
+  // Firebase auth state listener
+  if (firebaseAuth) {
+    firebaseAuth.onAuthStateChanged(async (user) => {
+      if (user) {
+        currentUser = user;
+        idToken = await user.getIdToken();
+        updateAuthUI();
+      } else {
+        currentUser = null;
+        idToken = null;
+        updateAuthUI();
+      }
+      await fetchTasks();
+    });
+  } else {
+    // No Firebase configured — dev mode, load directly
+    await fetchTasks();
+  }
+})();
 </script>
 </body>
 </html>
