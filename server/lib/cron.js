@@ -3,9 +3,23 @@ const config = require('../config');
 const { readData } = require('./dataStore');
 const { generateDailyReport, generateWeeklyReport } = require('./ai');
 const { sendTelegram } = require('./telegram');
+const { getDueReminders } = require('./reminders');
 
 function startCronJobs() {
   console.log('[Cron] Starting scheduled jobs...');
+
+  // Dynamic Reminder Check — Every minute
+  cron.schedule(config.CRON.REMINDER_CHECK, async () => {
+    try {
+      const due = getDueReminders();
+      for (const rem of due) {
+        await sendTelegram(`⏰ *리마인더*\n\n${rem.message}`);
+        console.log(`[Cron] Reminder sent: ${rem.message}`);
+      }
+    } catch (err) {
+      console.error('[Cron] Reminder check error:', err);
+    }
+  });
 
   // Morning Briefing — 07:00 KST (22:00 UTC prev day)
   cron.schedule(config.CRON.MORNING_BRIEFING, async () => {
@@ -76,6 +90,7 @@ function startCronJobs() {
   });
 
   console.log('[Cron] Scheduled:');
+  console.log(`  - Reminder check: every minute`);
   console.log(`  - Morning briefing: ${config.CRON.MORNING_BRIEFING} (07:00 KST)`);
   console.log(`  - Night review: ${config.CRON.NIGHT_REVIEW} (22:00 KST)`);
   console.log(`  - Weekly report: ${config.CRON.WEEKLY_REPORT} (Sunday 10:00 KST)`);

@@ -4,29 +4,31 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { readData, writeData, getNextTaskId, compressedTaskList } = require('../lib/dataStore');
-const { transcribeAudio, classifyVoiceInput, parseVoiceTodos } = require('../lib/ai');
+const { transcribeAudio, agentProcess, parseVoiceTodos } = require('../lib/ai');
+const { addReminder } = require('../lib/reminders');
 
 // Multer setup: save audio to /tmp
 const upload = multer({
   dest: path.join(__dirname, '../../data/uploads/'),
-  limits: { fileSize: 25 * 1024 * 1024 }, // 25MB max (Whisper limit)
+  limits: { fileSize: 25 * 1024 * 1024 }, // 25MB max
 });
 
 // POST /api/voice/upload
-// Flow: Audio → Whisper STT → Haiku Classifier → Auto task update
+// Flow: Audio → ElevenLabs Scribe → GPT-4o-mini Agent → Smart actions
 router.post('/upload', upload.single('audio'), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No audio file uploaded' });
   }
 
   try {
-    // Step 1: Whisper STT
+    // Step 1: ElevenLabs Scribe STT
     const transcript = await transcribeAudio(req.file.path);
 
-    // Step 2: Haiku classifier (token-saving: ID+name only)
+    // Step 2: GPT-4o-mini smart agent
     const data = readData();
     const compressed = compressedTaskList(data);
-    const actions = await classifyVoiceInput(transcript, compressed);
+    const todayDate = new Date().toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' });
+    const actions = await agentProcess(transcript, compressed, todayDate);
 
     // Step 3: Apply actions
     const actionsList = Array.isArray(actions) ? actions : [actions];
@@ -47,14 +49,13 @@ router.post('/upload', upload.single('audio'), async (req, res) => {
       actions_taken: results,
     });
   } catch (err) {
-    // Cleanup on error
     if (req.file) fs.unlink(req.file.path, () => {});
     console.error('Voice processing error:', err);
     res.status(500).json({ error: err.message });
   }
 });
 
-// POST /api/voice/text — Text input (skip Whisper, useful for testing)
+// POST /api/voice/text — Text input (skip STT, useful for testing)
 router.post('/text', async (req, res) => {
   const { text } = req.body;
   if (!text) return res.status(400).json({ error: 'text is required' });
@@ -62,7 +63,8 @@ router.post('/text', async (req, res) => {
   try {
     const data = readData();
     const compressed = compressedTaskList(data);
-    const actions = await classifyVoiceInput(text, compressed);
+    const todayDate = new Date().toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' });
+    const actions = await agentProcess(text, compressed, todayDate);
 
     const actionsList = Array.isArray(actions) ? actions : [actions];
     const results = [];
@@ -85,20 +87,16 @@ router.post('/text', async (req, res) => {
 });
 
 // POST /api/voice/todo
-// Flow: Audio → Whisper STT → Claude → To-Do list items
+// Flow: Audio → Scribe STT → GPT → To-Do list items
 router.post('/todo', upload.single('audio'), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No audio file uploaded' });
   }
 
   try {
-    // Step 1: Whisper STT
     const transcript = await transcribeAudio(req.file.path);
-
-    // Step 2: Claude parses to-do items
     const todos = await parseVoiceTodos(transcript);
 
-    // Cleanup uploaded file
     fs.unlink(req.file.path, () => {});
 
     res.json({
@@ -136,7 +134,7 @@ function applyAction(data, action) {
       const newTask = {
         id: getNextTaskId(data),
         name: action.new_task || action.note || 'New task',
-        desc: action.note || '',
+        desc: action.desc || action.note || '',
         category: action.category || 'content',
         priority: action.priority || '단기',
         section: action.section || '',
@@ -158,7 +156,46 @@ function applyAction(data, action) {
       }
       return { action: 'update', error: `Task ${action.task_id} not found` };
     }
+    case 'schedule': {
+      const task = data.tasks.find(t => t.id === action.task_id);
+      if (task) {
+        task.day = action.day;
+        return { action: 'schedule', task_id: task.id, task_name: task.name, day: action.day };
+      }
+      return { action: 'schedule', error: `Task ${action.task_id} not found` };
+    }
+    case 'prioritize': {
+      const task = data.tasks.find(t => t.id === action.task_id);
+      if (task) {
+        task.priority = action.priority;
+        return { action: 'prioritize', task_id: task.id, task_name: task.name, priority: action.priority };
+      }
+      return { action: 'prioritize', error: `Task ${action.task_id} not found` };
+    }
+    case 'remind': {
+      addReminder({
+        message: action.message,
+        remind_at: action.remind_at,
+        created_at: new Date().toISOString(),
+      });
+      return { action: 'remind', message: action.message, remind_at: action.remind_at };
+    }
+    case 'query': {
+      return { action: 'query', response: action.response };
+    }
+    case 'report': {
+      return { action: 'report', response: action.response };
+    }
     case 'note': {
+      // Store note in brain_dumps
+      data.brain_dumps.push({
+        id: `note-${Date.now()}`,
+        text: action.note,
+        audio_url: null,
+        parsed: false,
+        created_at: new Date().toISOString(),
+        resulting_actions: [],
+      });
       return { action: 'note', note: action.note };
     }
     default:

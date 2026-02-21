@@ -13,7 +13,7 @@ router.post('/', async (req, res) => {
   try {
     const data = readData();
 
-    // Send task list (names + priorities, no full descriptions) to Sonnet
+    // Send task list (names + priorities, no full descriptions) to GPT-4o-mini
     const taskList = data.tasks.map(t => ({
       id: t.id,
       name: t.name,
