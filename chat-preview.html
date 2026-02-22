@@ -430,6 +430,24 @@ body{
 }
 .t-break:active{opacity:.6}
 
+/* Task detail expansion */
+.t-detail{
+  display:none;margin-top:8px;padding:10px 12px;
+  background:var(--bg2);border-radius:8px;
+  font-size:12px;line-height:1.6;color:var(--text2);
+  animation:detailIn .2s ease;
+}
+.t-detail.show{display:block}
+@keyframes detailIn{from{opacity:0;max-height:0}to{opacity:1;max-height:200px}}
+.t-detail-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:2px}
+.t-detail-text{white-space:pre-wrap;word-break:break-word}
+.t-expand{
+  font-size:9px;font-weight:600;color:var(--text3);
+  margin-left:auto;flex-shrink:0;
+  transition:transform .2s;
+}
+.t-expand.open{transform:rotate(180deg)}
+
 /* ===== TOAST ===== */
 .toast{
   position:fixed;top:calc(16px + var(--safe-top));left:16px;right:16px;z-index:2000;
@@ -833,6 +851,17 @@ async function breakItDown(id, event) {
   }
 }
 
+// ===== TASK DETAIL TOGGLE =====
+function toggleDetail(id, event) {
+  event.stopPropagation();
+  const detail = document.getElementById('detail-' + id);
+  const expand = document.getElementById('expand-' + id);
+  if (detail) {
+    detail.classList.toggle('show');
+    if (expand) expand.classList.toggle('open');
+  }
+}
+
 // ===== TABS =====
 function switchTab(t, el) {
   document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
@@ -1137,16 +1166,24 @@ function renderTasks() {
     h += '<div class="pri-count">' + dc + '/' + items.length + '</div></div>';
     items.forEach((t, i) => {
       const dur = t.dur ? (t.dur >= 60 ? Math.round(t.dur / 60) + 'h' : t.dur + 'm') : '';
-      h += '<div class="t-item ' + (t.done ? 'done' : '') + '" style="animation-delay:' + (i * .03) + 's" onclick="toggle(' + t.id + ')">';
-      h += '<div class="t-chk ' + (t.done ? 'done' : '') + '"></div>';
-      h += '<div class="t-body"><div class="t-name">' + esc(t.name) + '</div>';
+      const hasDesc = t.desc && t.desc.trim();
+      h += '<div class="t-item ' + (t.done ? 'done' : '') + '" style="animation-delay:' + (i * .03) + 's">';
+      h += '<div class="t-chk ' + (t.done ? 'done' : '') + '" onclick="toggle(' + t.id + ')"></div>';
+      h += '<div class="t-body" onclick="' + (hasDesc ? 'toggleDetail(' + t.id + ',event)' : 'toggle(' + t.id + ')') + '">';
+      h += '<div class="t-name">' + esc(t.name) + '</div>';
       if (t.sub) h += '<div class="t-sub">' + esc(t.sub) + '</div>';
       h += '<div class="t-meta"><span class="t-badge ' + (CAT_BADGE[t.cat] || '') + '">' + (CAT_LABEL[t.cat] || t.cat) + '</span>';
-      // Tiny Habits: break-it-down button for large tasks
       if (!t.done && t.dur && t.dur >= 60) h += '<button class="t-break" onclick="breakItDown(' + t.id + ',event)">Break down</button>';
       h += '</div>';
+      if (hasDesc) {
+        h += '<div class="t-detail" id="detail-' + t.id + '">';
+        h += '<div class="t-detail-label">Details</div>';
+        h += '<div class="t-detail-text">' + esc(t.desc) + '</div>';
+        h += '</div>';
+      }
       h += '</div>';
-      if (dur) h += '<div class="t-dur">' + dur + '</div>';
+      if (hasDesc) h += '<div class="t-expand" id="expand-' + t.id + '" onclick="toggleDetail(' + t.id + ',event)">&#x25BC;</div>';
+      else if (dur) h += '<div class="t-dur">' + dur + '</div>';
       h += '</div>';
     });
     h += '</div>';

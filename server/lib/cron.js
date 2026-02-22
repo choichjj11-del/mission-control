@@ -15,6 +15,17 @@ function startCronJobs() {
       const due = getDueReminders();
       for (const rem of due) {
         await sendTelegram(`⏰ *리마인더*\n\n${rem.message}`);
+        // Push notification for reminder
+        if (config.VAPID_PUBLIC_KEY) {
+          const payload = JSON.stringify({
+            title: 'Mission Control',
+            body: rem.message,
+            icon: '/icon.svg',
+            tag: 'reminder-' + Date.now(),
+            url: '/chat-preview.html',
+          });
+          await pushRouter.sendPushToUser('default', payload).catch(() => {});
+        }
         console.log(`[Cron] Reminder sent: ${rem.message}`);
       }
     } catch (err) {

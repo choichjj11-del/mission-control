@@ -66,7 +66,7 @@ async function agentProcess(transcript, compressedTasks, todayDate) {
 가능한 action:
 - check: 태스크 완료 {"action":"check","task_id":1,"note":"완료"}
 - uncheck: 완료 해제 {"action":"uncheck","task_id":1}
-- add: 새 태스크 추가 {"action":"add","new_task":"이름","desc":"설명","priority":"즉시|단기|중기|장기","category":"content|auto|growth|infra"}
+- add: 새 태스크 추가 {"action":"add","new_task":"간결한 제목 (15자 이내)","desc":"유저가 말한 구체적 맥락, 세부사항, 참고자료를 최대한 상세하게 기록. 빈 문자열 금지.","priority":"즉시|단기|중기|장기","category":"content|auto|growth|infra"}
 - update: 태스크 수정 {"action":"update","task_id":1,"note":"추가 메모"}
 - schedule: 태스크 날짜 변경 {"action":"schedule","task_id":1,"day":5}
 - prioritize: 우선순위 변경 {"action":"prioritize","task_id":1,"priority":"즉시"}
@@ -91,9 +91,11 @@ ${compressedTasks}
 - query/report의 response는 한국어로 간결하게
 - 자율성 지지적 언어 사용: "~해보는 건 어때요?", "~해볼까요?" (NOT "~해야 합니다", "~하세요")
 - 유저가 "꼭 할게", "반드시", "약속" 등 다짐 표현 시 commit 액션 사용
-- 격려와 지지적 톤 유지`;
+- 격려와 지지적 톤 유지
+- add 액션 시 new_task는 간결한 제목, desc에 유저가 언급한 구체적 내용/맥락/참고사항을 반드시 상세히 기록 (예: "헤헤홈이랑 똑같은 콘텐츠 구성으로 준비. 실제 콘텐츠 제작 포함.")
+- update 액션 시 note에도 유저의 원래 말을 최대한 보존해서 기록`;
 
-  const raw = await callGPT(config.AI.AGENT_MODEL, systemPrompt, transcript, 500);
+  const raw = await callGPT(config.AI.AGENT_MODEL, systemPrompt, transcript, 800);
   const jsonStr = raw.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
   return JSON.parse(jsonStr);
 }
