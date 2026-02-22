@@ -16,6 +16,10 @@ module.exports = {
   GITHUB_REPO: 'choichjj11-del/mission-control',
   GITHUB_TOKEN: process.env.GITHUB_TOKEN || '',
 
+  // Web Push (VAPID keys — generate with: npx web-push generate-vapid-keys)
+  VAPID_PUBLIC_KEY: process.env.VAPID_PUBLIC_KEY || '',
+  VAPID_PRIVATE_KEY: process.env.VAPID_PRIVATE_KEY || '',
+
   // AI model selection — GPT-4o-mini for everything (cheapest agent-capable model)
   AI: {
     AGENT_MODEL: 'gpt-4o-mini',       // $0.15/$0.60 per M tokens — all agent tasks

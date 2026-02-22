@@ -30,6 +30,7 @@ app.use('/api/braindump', require('./routes/braindump'));
 app.use('/api/report', require('./routes/report'));
 app.use('/api/sync', require('./routes/sync'));
 app.use('/api/sharing', require('./routes/sharing'));
+app.use('/api/push', require('./routes/push'));
 
 // Health check (public)
 app.get('/api/health', (req, res) => {

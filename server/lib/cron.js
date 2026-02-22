@@ -4,6 +4,7 @@ const { readData } = require('./dataStore');
 const { generateDailyReport, generateWeeklyReport } = require('./ai');
 const { sendTelegram } = require('./telegram');
 const { getDueReminders } = require('./reminders');
+const pushRouter = require('../routes/push');
 
 function startCronJobs() {
   console.log('[Cron] Starting scheduled jobs...');
@@ -34,6 +35,17 @@ function startCronJobs() {
 
       const report = await generateDailyReport(changesText, statsText);
       await sendTelegram(`🌅 *모닝 브리핑*\n\n${report}`);
+      // Push notification
+      if (config.VAPID_PUBLIC_KEY) {
+        const payload = JSON.stringify({
+          title: 'Mission Control',
+          body: `오늘 즉시 실행 ${urgentTodo.length}개 | 전체 ${Math.round(totalDone / data.tasks.length * 100)}% 완료`,
+          icon: '/icon.svg',
+          tag: 'morning-briefing',
+          url: '/chat-preview.html',
+        });
+        await pushRouter.sendPushToUser('default', payload).catch(() => {});
+      }
       console.log('[Cron] Morning briefing sent');
     } catch (err) {
       console.error('[Cron] Morning briefing error:', err);
@@ -56,6 +68,20 @@ function startCronJobs() {
 
       const report = await generateDailyReport(changesText, statsText);
       await sendTelegram(`🌙 *나이트 리뷰*\n\n${report}`);
+      // Push notification
+      if (config.VAPID_PUBLIC_KEY) {
+        const body = todayDone.length > 0
+          ? `오늘 ${todayDone.length}개 완료! ${totalDone}/${data.tasks.length} 전체 진행`
+          : `오늘 완료 0개. 내일 다시 시작해봐요!`;
+        const payload = JSON.stringify({
+          title: 'Mission Control',
+          body,
+          icon: '/icon.svg',
+          tag: 'night-review',
+          url: '/chat-preview.html',
+        });
+        await pushRouter.sendPushToUser('default', payload).catch(() => {});
+      }
       console.log('[Cron] Night review sent');
     } catch (err) {
       console.error('[Cron] Night review error:', err);

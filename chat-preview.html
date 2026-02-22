@@ -6,6 +6,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#ffffff">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icon.svg">
 <title>Mission Control</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -319,7 +321,7 @@ body{
   flex:1;overflow-y:auto;
   -webkit-overflow-scrolling:touch;
 }
-.insights-pad{padding:16px 16px calc(16px + var(--safe-bottom))}
+.insights-pad{padding:0 0 calc(16px + var(--safe-bottom))}
 .ins-title{font-size:15px;font-weight:700;margin-bottom:12px}
 .ins-card{
   background:var(--bg2);border-radius:var(--rs);
@@ -346,6 +348,57 @@ body{
 .obj-mini-pct{font-size:12px;font-weight:700;color:var(--text3)}
 .obj-mini-bar{height:4px;background:var(--bg2);border-radius:2px;overflow:hidden}
 .obj-mini-fill{height:100%;border-radius:2px;background:var(--black)}
+
+/* ===== PROGRESS RING ===== */
+.progress-hero{
+  display:flex;align-items:center;justify-content:center;
+  gap:24px;padding:20px 16px 16px;
+}
+.ring-wrap{position:relative;width:120px;height:120px;flex-shrink:0}
+.ring-svg{transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:var(--bg3);stroke-width:8}
+.ring-fill{fill:none;stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset .8s cubic-bezier(.4,0,.2,1)}
+.ring-center{
+  position:absolute;top:0;left:0;width:100%;height:100%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+.ring-pct{font-size:28px;font-weight:800;letter-spacing:-1px;line-height:1}
+.ring-label{font-size:10px;font-weight:600;color:var(--text3);margin-top:2px;text-transform:uppercase;letter-spacing:.5px}
+.hero-stats{display:flex;flex-direction:column;gap:8px}
+.hero-stat{display:flex;align-items:baseline;gap:6px}
+.hero-num{font-size:22px;font-weight:800;letter-spacing:-.5px;line-height:1}
+.hero-desc{font-size:11px;font-weight:500;color:var(--text2)}
+
+/* Category mini-bars */
+.cat-bars{display:flex;gap:6px;margin-top:12px;padding:0 16px}
+.cat-bar-item{flex:1;text-align:center}
+.cat-bar-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:4px}
+.cat-bar-track{height:6px;background:var(--bg3);border-radius:3px;overflow:hidden}
+.cat-bar-fill{height:100%;border-radius:3px;transition:width .6s ease}
+
+/* Streak badge */
+.streak-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:4px 10px;border-radius:12px;
+  font-size:11px;font-weight:700;
+  background:linear-gradient(135deg,#f97316,#ef4444);
+  color:#fff;
+}
+.streak-badge.cold{background:var(--bg3);color:var(--text3)}
+
+/* Notification bell */
+.notif-btn{
+  width:32px;height:32px;border-radius:50%;
+  border:1px solid var(--border);background:var(--bg);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:14px;position:relative;
+  -webkit-tap-highlight-color:transparent;
+}
+.notif-btn.subscribed::after{
+  content:'';position:absolute;top:4px;right:4px;
+  width:6px;height:6px;border-radius:50%;background:var(--green);
+}
+.notif-btn:active{background:var(--bg2)}
 
 /* ===== CELEBRATION ===== */
 .celebration{
@@ -470,6 +523,7 @@ body{
       <div class="auth-bar" id="authBar">
         <button class="auth-btn" id="authBtn" onclick="handleAuth()">Sign In</button>
       </div>
+      <button class="notif-btn" id="notifBtn" onclick="togglePushSubscription()" title="Push Notifications">&#x1F514;</button>
       <button class="auth-btn" onclick="openShareModal()" style="margin-left:4px">Share</button>
     </div>
   </div>
@@ -922,15 +976,13 @@ async function sendMessage() {
   showTypingIndicator();
 
   try {
-    const resp = await fetch(API_BASE + '/voice/text', {
+    const data = await apiFetch('/voice/text', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text }),
     });
-    const data = await resp.json();
     hideTypingIndicator();
 
-    if (resp.ok && data.actions_taken) {
+    if (data.actions_taken) {
       // Zeigarnik Effect: "All captured" confirmation
       const actionCount = data.actions_taken.length;
       const prefix = actionCount > 1 ? '\uCC98\uB9AC\uD588\uC5B4. ' + actionCount + '\uAC1C \uBAA8\uB450 \uC7A1\uC558\uC5B4!' : '\uCC98\uB9AC\uD588\uC5B4.';
@@ -997,7 +1049,9 @@ async function stopVoiceRecording() {
   formData.append('audio', blob, 'recording.webm');
 
   try {
-    const resp = await fetch(API_BASE + '/voice/upload', {method: 'POST', body: formData});
+    const headers = {};
+    if (idToken) headers['Authorization'] = 'Firebase ' + idToken;
+    const resp = await fetch(API_BASE + '/voice/upload', {method: 'POST', headers, body: formData});
     const data = await resp.json();
     hideTypingIndicator();
 
@@ -1123,20 +1177,56 @@ function renderInsightsFromLocal() {
   const catDone = {content: 0, auto: 0, growth: 0, infra: 0};
   tasks.forEach(t => { cats[t.cat] = (cats[t.cat] || 0) + 1; if (t.done) catDone[t.cat] = (catDone[t.cat] || 0) + 1; });
 
-  let h = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">';
-  h += '<div class="ins-title" style="margin-bottom:0">Insights</div>';
+  let h = '';
+
+  // Progress Ring Hero
+  const circumference = 2 * Math.PI * 52;
+  const offset = circumference - (pct / 100) * circumference;
+  const ringColor = pct >= 75 ? 'var(--green)' : pct >= 40 ? 'var(--orange)' : 'var(--red)';
+  const streak = parseInt(localStorage.getItem('mc_streak') || '0');
+
+  h += '<div class="progress-hero">';
+  h += '<div class="ring-wrap">';
+  h += '<svg class="ring-svg" width="120" height="120" viewBox="0 0 120 120">';
+  h += '<circle class="ring-bg" cx="60" cy="60" r="52"/>';
+  h += '<circle class="ring-fill" cx="60" cy="60" r="52" stroke="' + ringColor + '" stroke-dasharray="' + circumference + '" stroke-dashoffset="' + offset + '"/>';
+  h += '</svg>';
+  h += '<div class="ring-center"><div class="ring-pct">' + pct + '%</div><div class="ring-label">Complete</div></div>';
+  h += '</div>';
+  h += '<div class="hero-stats">';
+  h += '<div class="hero-stat"><div class="hero-num" style="color:var(--green)">' + done + '</div><div class="hero-desc">done</div></div>';
+  h += '<div class="hero-stat"><div class="hero-num" style="color:var(--red)">' + urgent + '</div><div class="hero-desc">urgent</div></div>';
+  h += '<div class="hero-stat"><div class="hero-num">' + total + '</div><div class="hero-desc">total</div></div>';
+  if (streak > 0) h += '<div style="margin-top:2px"><span class="streak-badge' + (streak < 2 ? ' cold' : '') + '">' + streak + ' day streak</span></div>';
+  h += '</div></div>';
+
+  // Category mini-bars
+  const catColors = {content:'#dc2626', auto:'#2563eb', growth:'#7c3aed', infra:'#16a34a'};
+  h += '<div class="cat-bars">';
+  for (const [cat, label] of [['content','Content'],['auto','Auto'],['growth','Growth'],['infra','Infra']]) {
+    const catPct = cats[cat] ? Math.round((catDone[cat] || 0) / cats[cat] * 100) : 0;
+    h += '<div class="cat-bar-item"><div class="cat-bar-label">' + label + ' ' + (catDone[cat]||0) + '/' + (cats[cat]||0) + '</div>';
+    h += '<div class="cat-bar-track"><div class="cat-bar-fill" style="width:' + catPct + '%;background:' + catColors[cat] + '"></div></div></div>';
+  }
+  h += '</div>';
+
+  // Refresh button
+  h += '<div style="display:flex;align-items:center;justify-content:space-between;margin:16px 16px 0;padding:0">';
+  h += '<div class="ins-title" style="margin-bottom:0">Today</div>';
   h += '<button class="ins-refresh" onclick="refreshAIInsights(this)">Refresh AI</button>';
   h += '</div>';
 
+  h += '<div style="padding:0 16px">';
   h += buildInsightCards(total, done, pct, urgent, cats, catDone);
+  h += '</div>';
 
   // Objectives
-  h += '<div style="margin-top:20px"><div class="ins-title">Objectives</div>';
+  h += '<div style="padding:0 16px;margin-top:16px"><div class="ins-title">Objectives</div>';
   h += '<div id="objectivesList"><div style="color:var(--text3);font-size:12px">Loading...</div></div>';
   h += '</div>';
 
   // AI insights container
-  h += '<div style="margin-top:20px"><div class="ins-title">AI Insights</div>';
+  h += '<div style="padding:0 16px;margin-top:16px"><div class="ins-title">AI Insights</div>';
   h += '<div id="aiInsightsContainer"><div style="color:var(--text3);font-size:12px">Press "Refresh AI" to generate</div></div>';
   h += '</div>';
 
@@ -1153,25 +1243,60 @@ function renderInsightsFromStats(stats) {
   const catDone = {};
   for (const [k, v] of Object.entries(stats.by_category || {})) { cats[k] = v.total; catDone[k] = v.done; }
 
-  // Update just the stats cards, preserve AI insights and objectives
   const container = document.getElementById('insightsContent');
   if (!container) return;
-
-  let h = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">';
-  h += '<div class="ins-title" style="margin-bottom:0">Insights</div>';
-  h += '<button class="ins-refresh" onclick="refreshAIInsights(this)">Refresh AI</button>';
-  h += '</div>';
-
-  h += buildInsightCards(total, done, pct, urgent, cats, catDone);
-
-  // Objectives from stats
-  h += '<div style="margin-top:20px"><div class="ins-title">Objectives</div>';
-  h += '<div id="objectivesList"></div></div>';
 
   // Preserve AI insights
   const existingAI = document.getElementById('aiInsightsContainer');
   const aiHTML = existingAI ? existingAI.innerHTML : '<div style="color:var(--text3);font-size:12px">Press "Refresh AI" to generate</div>';
-  h += '<div style="margin-top:20px"><div class="ins-title">AI Insights</div>';
+
+  // Progress Ring Hero
+  const circumference = 2 * Math.PI * 52;
+  const offset = circumference - (pct / 100) * circumference;
+  const ringColor = pct >= 75 ? 'var(--green)' : pct >= 40 ? 'var(--orange)' : 'var(--red)';
+  const streak = parseInt(localStorage.getItem('mc_streak') || '0');
+
+  let h = '<div class="progress-hero">';
+  h += '<div class="ring-wrap">';
+  h += '<svg class="ring-svg" width="120" height="120" viewBox="0 0 120 120">';
+  h += '<circle class="ring-bg" cx="60" cy="60" r="52"/>';
+  h += '<circle class="ring-fill" cx="60" cy="60" r="52" stroke="' + ringColor + '" stroke-dasharray="' + circumference + '" stroke-dashoffset="' + offset + '"/>';
+  h += '</svg>';
+  h += '<div class="ring-center"><div class="ring-pct">' + pct + '%</div><div class="ring-label">Complete</div></div>';
+  h += '</div>';
+  h += '<div class="hero-stats">';
+  h += '<div class="hero-stat"><div class="hero-num" style="color:var(--green)">' + done + '</div><div class="hero-desc">done</div></div>';
+  h += '<div class="hero-stat"><div class="hero-num" style="color:var(--red)">' + urgent + '</div><div class="hero-desc">urgent</div></div>';
+  h += '<div class="hero-stat"><div class="hero-num">' + total + '</div><div class="hero-desc">total</div></div>';
+  if (streak > 0) h += '<div style="margin-top:2px"><span class="streak-badge' + (streak < 2 ? ' cold' : '') + '">' + streak + ' day streak</span></div>';
+  h += '</div></div>';
+
+  // Category mini-bars
+  const catColors = {content:'#dc2626', auto:'#2563eb', growth:'#7c3aed', infra:'#16a34a'};
+  h += '<div class="cat-bars">';
+  for (const [cat, label] of [['content','Content'],['auto','Auto'],['growth','Growth'],['infra','Infra']]) {
+    const catPct = cats[cat] ? Math.round((catDone[cat] || 0) / cats[cat] * 100) : 0;
+    h += '<div class="cat-bar-item"><div class="cat-bar-label">' + label + ' ' + (catDone[cat]||0) + '/' + (cats[cat]||0) + '</div>';
+    h += '<div class="cat-bar-track"><div class="cat-bar-fill" style="width:' + catPct + '%;background:' + catColors[cat] + '"></div></div></div>';
+  }
+  h += '</div>';
+
+  // Today cards
+  h += '<div style="display:flex;align-items:center;justify-content:space-between;margin:16px 16px 0;padding:0">';
+  h += '<div class="ins-title" style="margin-bottom:0">Today</div>';
+  h += '<button class="ins-refresh" onclick="refreshAIInsights(this)">Refresh AI</button>';
+  h += '</div>';
+
+  h += '<div style="padding:0 16px">';
+  h += buildInsightCards(total, done, pct, urgent, cats, catDone);
+  h += '</div>';
+
+  // Objectives
+  h += '<div style="padding:0 16px;margin-top:16px"><div class="ins-title">Objectives</div>';
+  h += '<div id="objectivesList"></div></div>';
+
+  // AI insights
+  h += '<div style="padding:0 16px;margin-top:16px"><div class="ins-title">AI Insights</div>';
   h += '<div id="aiInsightsContainer">' + aiHTML + '</div></div>';
 
   container.innerHTML = h;
@@ -1344,10 +1469,104 @@ function updateStreak() {
   localStorage.setItem('mc_lastActive', today);
 }
 
+// ===== SERVICE WORKER + PUSH NOTIFICATIONS =====
+let swRegistration = null;
+let pushSubscription = null;
+
+async function registerServiceWorker() {
+  if (!('serviceWorker' in navigator)) return;
+  try {
+    swRegistration = await navigator.serviceWorker.register('/sw.js');
+    console.log('[SW] Registered');
+    // Check existing push subscription
+    pushSubscription = await swRegistration.pushManager.getSubscription();
+    updateNotifBtn();
+  } catch (e) {
+    console.error('[SW] Registration failed:', e);
+  }
+}
+
+function updateNotifBtn() {
+  const btn = document.getElementById('notifBtn');
+  if (!btn) return;
+  if (pushSubscription) {
+    btn.classList.add('subscribed');
+    btn.title = 'Notifications ON';
+  } else {
+    btn.classList.remove('subscribed');
+    btn.title = 'Enable Notifications';
+  }
+}
+
+async function togglePushSubscription() {
+  if (!swRegistration) {
+    toast('Service Worker not ready');
+    return;
+  }
+
+  if (pushSubscription) {
+    // Unsubscribe
+    try {
+      const endpoint = pushSubscription.endpoint;
+      await pushSubscription.unsubscribe();
+      pushSubscription = null;
+      updateNotifBtn();
+      await apiFetch('/push/unsubscribe', {
+        method: 'POST',
+        body: JSON.stringify({ endpoint }),
+      });
+      toast('Notifications OFF');
+    } catch (e) {
+      toast('Failed to unsubscribe');
+    }
+  } else {
+    // Subscribe
+    try {
+      const resp = await apiFetch('/push/vapid-key');
+      const vapidKey = resp.publicKey;
+
+      const permission = await Notification.requestPermission();
+      if (permission !== 'granted') {
+        toast('Notification permission denied');
+        return;
+      }
+
+      pushSubscription = await swRegistration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(vapidKey),
+      });
+
+      await apiFetch('/push/subscribe', {
+        method: 'POST',
+        body: JSON.stringify(pushSubscription.toJSON()),
+      });
+
+      updateNotifBtn();
+      toast('Notifications ON!');
+
+      // Send test notification
+      await apiFetch('/push/test', { method: 'POST' });
+    } catch (e) {
+      console.error('[Push] Subscribe error:', e);
+      toast('Failed: ' + (e.message || 'Push not supported'));
+    }
+  }
+}
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
+  return outputArray;
+}
+
 // ===== INIT =====
 (async function init() {
   renderChat();
   renderFilters();
+  registerServiceWorker();
 
   // Firebase auth state listener
   if (firebaseAuth) {
