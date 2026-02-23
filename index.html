@@ -809,6 +809,14 @@ async function toggleVoice() {
     stopVoice();
     return;
   }
+  if (!window.isSecureContext) {
+    showToast('🔒 현재 주소(' + location.hostname + ')에서는 마이크 사용 불가 — localhost로 접속해주세요', 'error');
+    return;
+  }
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    showToast('이 브라우저에서 마이크를 지원하지 않아요', 'error');
+    return;
+  }
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     audioChunks = [];
@@ -822,7 +830,13 @@ async function toggleVoice() {
     voiceStartTime = Date.now();
     voiceTimerInterval = setInterval(updateVoiceTimer, 1000);
   } catch(e) {
-    showToast('\uB9C8\uC774\uD06C \uAD8C\uD55C\uC774 \uD544\uC694\uD569\uB2C8\uB2E4', 'error');
+    if (e.name === 'NotAllowedError') {
+      showToast('마이크 권한이 차단됨 — 주소창 왼쪽 🔒 아이콘에서 허용해주세요', 'error');
+    } else if (e.name === 'NotFoundError') {
+      showToast('연결된 마이크가 없어요', 'error');
+    } else {
+      showToast('마이크 오류: ' + e.message, 'error');
+    }
   }
 }
 
@@ -860,13 +874,24 @@ async function stopVoice() {
         let actionSummary = '';
         if (data.actions_taken && data.actions_taken.length > 0) {
           actionSummary = data.actions_taken.map(a => {
-            if (a.action === 'check') return '\u2705 ' + (a.task_name || '') + ' \uC644\uB8CC';
-            if (a.action === 'add') return '\u2795 ' + (a.task_name || '') + ' \uCD94\uAC00';
-            if (a.action === 'update') return '\u270F\uFE0F ' + (a.task_name || '') + ' \uC218\uC815';
-            return JSON.stringify(a);
+            const name = a.task_name || a.note || a.message || '';
+            switch (a.action) {
+              case 'check': return '\u2705 \'' + name + '\' 완료 처리';
+              case 'uncheck': return '\u21A9 \'' + name + '\' 완료 해제';
+              case 'add': return '\u2795 \'' + name + '\' 추가';
+              case 'update': return '\u270F\uFE0F \'' + name + '\' 수정';
+              case 'schedule': return '\uD83D\uDCC5 \'' + name + '\' 일정 변경';
+              case 'prioritize': return '\uD83D\uDD25 \'' + name + '\' 우선순위 변경';
+              case 'remind': return '\u23F0 리마인더 설정';
+              case 'note': return '\uD83D\uDCDD 메모 저장';
+              case 'query': return '\uD83D\uDCAC ' + (a.response||'').substring(0,60);
+              case 'report': return '\uD83D\uDCCA 리포트 생성';
+              case 'commit': return '\u2705 \'' + name + '\' 약속';
+              default: return '\u2022 \'' + name + '\' 처리';
+            }
           }).join('\n');
         }
-        alert('\uD83C\uDFA4 \uC74C\uC131 \uC778\uC2DD:\n' + data.transcript + (actionSummary ? '\n\n\uC2E4\uD589\uB41C \uC561\uC158:\n' + actionSummary : ''));
+        alert('\uD83C\uDFA4 음성 인식:\n' + data.transcript + (actionSummary ? '\n\n실행된 액션:\n' + actionSummary : ''));
       }
     } else {
       showToast(data.error || '\uC74C\uC131 \uCC98\uB9AC \uC2E4\uD328', 'error');
@@ -1284,6 +1309,14 @@ async function startTodoVoice() {
     stopTodoVoice();
     return;
   }
+  if (!window.isSecureContext) {
+    showToast('🔒 현재 주소(' + location.hostname + ')에서는 마이크 사용 불가 — localhost로 접속해주세요', 'error');
+    return;
+  }
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    showToast('이 브라우저에서 마이크를 지원하지 않아요', 'error');
+    return;
+  }
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     todoAudioChunks = [];
@@ -1302,7 +1335,13 @@ async function startTodoVoice() {
       document.getElementById('voiceTimer').textContent = m + ':' + s;
     }, 1000);
   } catch(e) {
-    showToast('마이크 권한이 필요합니다', 'error');
+    if (e.name === 'NotAllowedError') {
+      showToast('마이크 권한이 차단됨 — 주소창 왼쪽 🔒 아이콘에서 허용해주세요', 'error');
+    } else if (e.name === 'NotFoundError') {
+      showToast('연결된 마이크가 없어요', 'error');
+    } else {
+      showToast('마이크 오류: ' + e.message, 'error');
+    }
   }
 }
 

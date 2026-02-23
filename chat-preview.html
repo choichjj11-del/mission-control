@@ -839,7 +839,7 @@ async function breakItDown(id, event) {
     const data = await resp.json();
     if (resp.ok) {
       // Add AI response to chat
-      const aiText = '\uCABC\uAC1C\uBD04!' + formatActionsToChat(data.actions_taken || []);
+      const aiText = '쪼개봄! ' + buildActionSummary(data.actions_taken || []) + formatActionsToChat(data.actions_taken || []);
       messages.push({role: 'ai', text: aiText, time: Date.now()});
       localStorage.setItem('mc3_chat', JSON.stringify(messages));
       renderChat();
@@ -905,21 +905,22 @@ function renderChat() {
 }
 
 function formatMsg(text) {
-  const actionMatch = text.match(/\[ACTION:(.*?)\]/g);
+  const actionMatch = text.match(/\[ACTION:\{[^[\]]*\}\]/g);
   if (!actionMatch) return esc(text);
   let out = text;
   actionMatch.forEach(a => {
     try {
-      const json = JSON.parse(a.replace('[ACTION:', '').replace(']', ''));
+      const jsonStr = a.slice(8, -1); // strip [ACTION: and ]
+      const json = JSON.parse(jsonStr);
       let card = '<div class="action-card">';
       const typeLabels = {
-        task: '\u2713 \uD0DC\uC2A4\uD06C \uC0DD\uC131', add: '\u2713 \uD0DC\uC2A4\uD06C \uCD94\uAC00',
-        check: '\u2705 \uC644\uB8CC \uCC98\uB9AC', done: '\u2705 \uC644\uB8CC \uCC98\uB9AC',
-        uncheck: '\u21A9 \uC644\uB8CC \uD574\uC81C',
-        remind: '\u23F0 \uB9AC\uB9C8\uC778\uB354', note: '\uD83D\uDCDD \uBA54\uBAA8',
-        query: '\uD83D\uDCAC \uC751\uB2F5', report: '\uD83D\uDCCA \uB9AC\uD3EC\uD2B8',
-        update: '\u270F\uFE0F \uC218\uC815', schedule: '\uD83D\uDCC5 \uC77C\uC815 \uBCC0\uACBD',
-        prioritize: '\uD83D\uDD25 \uC6B0\uC120\uC21C\uC704 \uBCC0\uACBD',
+        task: '\u2713 태스크 생성', add: '\u2713 태스크 추가',
+        check: '\u2705 완료 처리', done: '\u2705 완료 처리',
+        uncheck: '\u21A9 완료 해제',
+        remind: '\u23F0 리마인더', note: '\uD83D\uDCDD 메모',
+        query: '\uD83D\uDCAC 응답', report: '\uD83D\uDCCA 리포트',
+        update: '\u270F\uFE0F 수정', schedule: '\uD83D\uDCC5 일정 변경',
+        prioritize: '\uD83D\uDD25 우선순위 변경',
       };
       const label = typeLabels[json.type] || json.type;
       card += '<div class="ac-type ac-' + json.type + '">' + label + '</div>';
@@ -927,7 +928,17 @@ function formatMsg(text) {
       if (json.detail) card += '<div class="ac-detail">' + esc(json.detail) + '</div>';
       card += '</div>';
       out = out.replace(a, card);
-    } catch (e) { out = out.replace(a, ''); }
+    } catch (e) {
+      // Fallback: extract name/message from broken JSON via regex
+      const nameMatch = a.match(/"(?:name|message|response)"\s*:\s*"([^"]*?)"/);
+      const typeMatch = a.match(/"type"\s*:\s*"([^"]*?)"/);
+      if (nameMatch) {
+        const fallback = '<div class="action-card"><div class="ac-type ac-' + (typeMatch?typeMatch[1]:'task') + '">' + (typeMatch?typeMatch[1]:'action') + '</div><div class="ac-name">' + esc(nameMatch[1]) + '</div></div>';
+        out = out.replace(a, fallback);
+      } else {
+        out = out.replace(a, '');
+      }
+    }
   });
   return out.replace(/\n/g, '<br>');
 }
@@ -946,47 +957,73 @@ function hideTypingIndicator() {
   if (el) el.remove();
 }
 
+// ===== BUILD ACTION SUMMARY (descriptive messages) =====
+function buildActionSummary(actions) {
+  if (!actions || actions.length === 0) return '처리했어.';
+  const parts = actions.map(a => {
+    const name = a.task_name || a.note || a.message || '';
+    switch (a.action) {
+      case 'check': return "'" + name + "' 완료 처리했어요";
+      case 'uncheck': return "'" + name + "' 완료 해제했어요";
+      case 'add': return "'" + name + "' 추가했어요";
+      case 'update': return "'" + name + "' 수정했어요";
+      case 'schedule': return "'" + name + "' 일정 변경했어요";
+      case 'prioritize': return "'" + name + "' 우선순위 변경했어요";
+      case 'remind': return '리마인더 설정했어요';
+      case 'note': return '메모 저장했어요';
+      case 'query': return a.response ? a.response.substring(0, 60) : '응답 완료';
+      case 'report': return a.response ? a.response.substring(0, 60) : '리포트 생성';
+      case 'commit': return "'" + name + "' 약속 잡았어요";
+      default: return "'" + name + "' 처리했어요";
+    }
+  });
+  if (parts.length === 1) return parts[0];
+  return parts.length + '개 처리: ' + parts.join(', ');
+}
+
 // ===== FORMAT BACKEND ACTIONS TO CHAT =====
 function formatActionsToChat(actions) {
   let text = '';
   for (const a of actions) {
+    let obj;
     switch (a.action) {
       case 'check':
-        text += '\n[ACTION:{"type":"check","name":"' + esc(a.task_name || '') + '","detail":"\uC644\uB8CC \uCC98\uB9AC\uB428"}]';
+        obj = {type:"check", name:a.task_name||'', detail:"완료 처리됨"};
         break;
       case 'uncheck':
-        text += '\n[ACTION:{"type":"uncheck","name":"' + esc(a.task_name || '') + '","detail":"\uC644\uB8CC \uD574\uC81C\uB428"}]';
+        obj = {type:"uncheck", name:a.task_name||'', detail:"완료 해제됨"};
         break;
       case 'add':
-        text += '\n[ACTION:{"type":"add","name":"' + esc(a.task_name || '') + '","detail":"\uD0DC\uC2A4\uD06C \uCD94\uAC00\uB428"}]';
+        obj = {type:"add", name:a.task_name||'', detail:"태스크 추가됨"};
         break;
       case 'update':
-        text += '\n[ACTION:{"type":"update","name":"' + esc(a.task_name || '') + '","detail":"' + esc(a.note || '\uC218\uC815\uB428') + '"}]';
+        obj = {type:"update", name:a.task_name||'', detail:a.note||'수정됨'};
         break;
       case 'schedule':
-        text += '\n[ACTION:{"type":"schedule","name":"' + esc(a.task_name || '') + '","detail":"Day ' + (a.day || '') + ' \uC73C\uB85C \uBCC0\uACBD"}]';
+        obj = {type:"schedule", name:a.task_name||'', detail:'Day '+(a.day||'')+' 으로 변경'};
         break;
       case 'prioritize':
-        text += '\n[ACTION:{"type":"prioritize","name":"' + esc(a.task_name || '') + '","detail":"' + esc(a.priority || '') + ' \uC73C\uB85C \uBCC0\uACBD"}]';
+        obj = {type:"prioritize", name:a.task_name||'', detail:(a.priority||'')+' 으로 변경'};
         break;
       case 'remind':
-        text += '\n[ACTION:{"type":"remind","message":"' + esc(a.message || '') + '","detail":"' + esc(a.remind_at || '') + '"}]';
+        obj = {type:"remind", message:a.message||'', detail:a.remind_at||''};
         break;
       case 'query':
-        text += '\n[ACTION:{"type":"query","response":"' + esc(a.response || '') + '"}]';
+        obj = {type:"query", response:a.response||''};
         break;
       case 'report':
-        text += '\n[ACTION:{"type":"report","response":"' + esc(a.response || '') + '"}]';
+        obj = {type:"report", response:a.response||''};
         break;
       case 'note':
-        text += '\n[ACTION:{"type":"note","name":"' + esc(a.note || '') + '","detail":"\uBA54\uBAA8 \uC800\uC7A5\uB428"}]';
+        obj = {type:"note", name:a.note||'', detail:"메모 저장됨"};
         break;
       case 'commit':
-        text += '\n[ACTION:{"type":"done","name":"' + esc(a.task_name || '') + ' \uC57D\uC18D!","detail":"\uB9C8\uAC10: ' + esc(a.deadline || '') + (a.stake ? ' / \uC2A4\uD14C\uC774\uD06C: ' + esc(a.stake) : '') + '"}]';
+        obj = {type:"done", name:(a.task_name||'')+' 약속!', detail:'마감: '+(a.deadline||'')+(a.stake?' / 스테이크: '+a.stake:'')};
         break;
       default:
-        text += '\n[ACTION:{"type":"' + a.action + '","name":"' + esc(JSON.stringify(a)) + '"}]';
+        obj = {type:a.action, name:JSON.stringify(a)};
     }
+    text += '\n[ACTION:' + JSON.stringify(obj) + ']';
   }
   return text;
 }
@@ -1012,9 +1049,8 @@ async function sendMessage() {
     hideTypingIndicator();
 
     if (data.actions_taken) {
-      // Zeigarnik Effect: "All captured" confirmation
-      const actionCount = data.actions_taken.length;
-      const prefix = actionCount > 1 ? '\uCC98\uB9AC\uD588\uC5B4. ' + actionCount + '\uAC1C \uBAA8\uB450 \uC7A1\uC558\uC5B4!' : '\uCC98\uB9AC\uD588\uC5B4.';
+      // Zeigarnik Effect: "All captured" confirmation with specific summary
+      const prefix = buildActionSummary(data.actions_taken);
       const aiText = prefix + formatActionsToChat(data.actions_taken);
       messages.push({role: 'ai', text: aiText, time: Date.now()});
       // Track streak
@@ -1046,6 +1082,15 @@ function autoGrow(el) {
 
 // ===== VOICE RECORDING (Real MediaRecorder) =====
 async function startVoiceRecording() {
+  // 사전 체크: Secure Context & mediaDevices API 존재 여부
+  if (!window.isSecureContext) {
+    toast('🔒 현재 주소(' + location.hostname + ')에서는 마이크 사용 불가 — localhost로 접속해주세요');
+    return;
+  }
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    toast('이 브라우저에서 마이크를 지원하지 않아요');
+    return;
+  }
   try {
     const stream = await navigator.mediaDevices.getUserMedia({audio: true});
     audioChunks = [];
@@ -1055,7 +1100,16 @@ async function startVoiceRecording() {
     mediaRecorder.start();
     document.getElementById('micBtn').classList.add('recording');
   } catch (e) {
-    toast('\uB9C8\uC774\uD06C \uAD8C\uD55C\uC774 \uD544\uC694\uD569\uB2C8\uB2E4');
+    console.error('[Mic Error]', e.name, e.message, e);
+    if (e.name === 'NotAllowedError') {
+      toast('마이크 권한이 차단됨 — 주소창 왼쪽 🔒 아이콘에서 허용해주세요');
+    } else if (e.name === 'NotFoundError' || e.name === 'NotReadableError') {
+      toast('연결된 마이크가 없거나 다른 앱이 사용 중이에요');
+    } else if (e.name === 'AbortError') {
+      toast('마이크 연결이 중단됐어요 — 다시 시도해주세요');
+    } else {
+      toast('마이크 오류(' + e.name + '): ' + e.message);
+    }
   }
 }
 
@@ -1089,7 +1143,7 @@ async function stopVoiceRecording() {
       messages[messages.length - 1].text = data.transcript || '\uD83C\uDFA4 (\uC74C\uC131)';
 
       if (data.actions_taken) {
-        const aiText = '\uCC98\uB9AC\uD588\uC5B4.' + formatActionsToChat(data.actions_taken);
+        const aiText = buildActionSummary(data.actions_taken) + formatActionsToChat(data.actions_taken);
         messages.push({role: 'ai', text: aiText, time: Date.now()});
       }
 

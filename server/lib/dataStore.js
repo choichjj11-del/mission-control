@@ -65,7 +65,7 @@ function getNextTaskId(data) {
 function compressedTaskList(data) {
   return data.tasks
     .filter(t => t.status !== 'done')
-    .map(t => `${t.id}:${t.name.substring(0, 8)}`)
+    .map(t => `${t.id}:${t.name.substring(0, 25)}`)
     .join(' ');
 }
 

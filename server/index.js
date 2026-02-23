@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -11,6 +12,12 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// 마이크/카메라 등 브라우저 API 명시적 허용
+app.use((req, res, next) => {
+  res.setHeader('Permissions-Policy', 'microphone=(self), camera=(self)');
+  next();
+});
 
 // Auth middleware (supports Bearer token + Firebase tokens)
 app.use('/api', authMiddleware);
