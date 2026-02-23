@@ -31,7 +31,7 @@ router.post('/upload', upload.single('audio'), async (req, res) => {
     const actions = await agentProcess(transcript, compressed, todayDate);
 
     // Step 3: Apply actions
-    const actionsList = Array.isArray(actions) ? actions : [actions];
+    const actionsList = normalizeActions(actions);
     const results = [];
 
     for (const action of actionsList) {
@@ -66,7 +66,7 @@ router.post('/text', async (req, res) => {
     const todayDate = new Date().toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' });
     const actions = await agentProcess(text, compressed, todayDate);
 
-    const actionsList = Array.isArray(actions) ? actions : [actions];
+    const actionsList = normalizeActions(actions);
     const results = [];
 
     for (const action of actionsList) {
@@ -109,6 +109,37 @@ router.post('/todo', upload.single('audio'), async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// Normalize GPT response: handle nested/wrapped action arrays
+function normalizeActions(actions) {
+  // Already a flat array of actions
+  if (Array.isArray(actions)) {
+    // Flatten: each element might itself contain nested actions
+    const flat = [];
+    for (const a of actions) {
+      flat.push(...normalizeActions(a));
+    }
+    return flat;
+  }
+  // Single action object
+  if (actions && typeof actions === 'object') {
+    // GPT sometimes wraps: {action: [{...}, {...}]}
+    if (Array.isArray(actions.action)) {
+      return normalizeActions(actions.action);
+    }
+    // GPT sometimes nests: {action: "something", raw: {action: [...]}}
+    if (actions.raw && Array.isArray(actions.raw.action)) {
+      return normalizeActions(actions.raw.action);
+    }
+    // GPT sometimes returns: {actions: [{...}, {...}]}
+    if (Array.isArray(actions.actions)) {
+      return normalizeActions(actions.actions);
+    }
+    // Normal single action
+    return [actions];
+  }
+  return [];
+}
 
 function applyAction(data, action) {
   switch (action.action) {

@@ -974,7 +974,8 @@ function buildActionSummary(actions) {
       case 'query': return a.response ? a.response.substring(0, 60) : '응답 완료';
       case 'report': return a.response ? a.response.substring(0, 60) : '리포트 생성';
       case 'commit': return "'" + name + "' 약속 잡았어요";
-      default: return "'" + name + "' 처리했어요";
+      case 'unknown': return name ? "'" + name + "' 처리했어요" : '처리했어요';
+      default: return name ? "'" + name + "' 처리했어요" : '처리했어요';
     }
   });
   if (parts.length === 1) return parts[0];
