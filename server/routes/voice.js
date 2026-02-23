@@ -161,6 +161,15 @@ function applyAction(data, action) {
       }
       return { action: 'uncheck', error: `Task ${action.task_id} not found` };
     }
+    case 'delete': {
+      const task = data.tasks.find(t => t.id === action.task_id);
+      if (task) {
+        const name = task.name;
+        data.tasks = data.tasks.filter(t => t.id !== action.task_id);
+        return { action: 'delete', task_id: action.task_id, task_name: name };
+      }
+      return { action: 'delete', error: `Task ${action.task_id} not found` };
+    }
     case 'add': {
       const newTask = {
         id: getNextTaskId(data),

@@ -142,6 +142,7 @@ body{
 .ac-uncheck{color:var(--orange)}
 .ac-query{color:var(--blue)}
 .ac-report{color:var(--blue)}
+.ac-delete{color:var(--red)}
 .ac-update{color:var(--orange)}
 .ac-schedule{color:var(--orange)}
 .ac-prioritize{color:var(--orange)}
@@ -914,7 +915,7 @@ function formatMsg(text) {
       const json = JSON.parse(jsonStr);
       let card = '<div class="action-card">';
       const typeLabels = {
-        task: '\u2713 태스크 생성', add: '\u2713 태스크 추가',
+        task: '\u2713 태스크 생성', add: '\u2713 태스크 추가', delete: '\u274C 태스크 삭제',
         check: '\u2705 완료 처리', done: '\u2705 완료 처리',
         uncheck: '\u21A9 완료 해제',
         remind: '\u23F0 리마인더', note: '\uD83D\uDCDD 메모',
@@ -966,6 +967,7 @@ function buildActionSummary(actions) {
       case 'check': return "'" + name + "' 완료 처리했어요";
       case 'uncheck': return "'" + name + "' 완료 해제했어요";
       case 'add': return "'" + name + "' 추가했어요";
+      case 'delete': return "'" + name + "' 삭제했어요";
       case 'update': return "'" + name + "' 수정했어요";
       case 'schedule': return "'" + name + "' 일정 변경했어요";
       case 'prioritize': return "'" + name + "' 우선순위 변경했어요";
@@ -996,6 +998,9 @@ function formatActionsToChat(actions) {
         break;
       case 'add':
         obj = {type:"add", name:a.task_name||'', detail:"태스크 추가됨"};
+        break;
+      case 'delete':
+        obj = {type:"delete", name:a.task_name||'', detail:"태스크 삭제됨"};
         break;
       case 'update':
         obj = {type:"update", name:a.task_name||'', detail:a.note||'수정됨'};
